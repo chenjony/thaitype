@@ -16,21 +16,26 @@ Clean, gamified Thai typing practice — Kedmanee layout, timed tests, social au
 ## Supabase setup
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. **Authentication → Providers**: enable **Google** and **Facebook**. Add your OAuth client IDs/secrets. Set redirect URL to your app origin (e.g. `http://localhost:5173`).
-3. **SQL Editor**: paste and run [`supabase/schema.sql`](supabase/schema.sql).
-4. Copy **Project URL** and **anon public** key from **Project Settings → API**.
-5. Create `.env` from the example:
+2. **Authentication → Providers**: enable **Google** and **Facebook**. Add your OAuth client IDs/secrets.
+3. **Authentication → URL Configuration**:
+   - **Site URL**: `https://thaitypes.com`
+   - **Redirect URLs**: `https://thaitypes.com/**` and `http://localhost:5173/**` (for local dev)
+4. **SQL Editor**: paste and run [`supabase/schema.sql`](supabase/schema.sql).
+5. Copy **Project URL** and **anon public** key from **Project Settings → API**.
+6. Create env files (this app uses **Vite** `VITE_*` vars, not Next.js `NEXT_PUBLIC_*`):
 
 ```bash
 cp .env.example .env
+cp .env.example .env.production
 ```
 
 ```env
 VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+VITE_SITE_URL=https://thaitypes.com
 ```
 
-6. Restart the dev server after changing env vars.
+7. Restart the dev server after changing env vars. Production builds (`npm run build`) read `.env.production`.
 
 Without Supabase credentials the app still runs fully in **guest mode** (practice only; scores are not saved).
 

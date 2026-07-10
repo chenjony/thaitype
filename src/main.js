@@ -1,5 +1,5 @@
 import './style.css'
-import { KEDMANEE, KEYBOARD_ROWS, CHAR_TO_CODE } from './data/keyboard.js'
+import { KEDMANEE, KEYBOARD_ROWS, CHAR_TO_CODE, charRequiresShift, CODE_TO_QWERTY, qwertyLabelForChar, LETTER_ZONES } from './data/keyboard.js'
 import { generateLettersText, generateWordsText } from './data/content.js'
 import { speakThaiChar, playErrorTone, unlockAudio, initSpeech } from './audio.js'
 import { calcWpm, calcAccuracy, topMissedKeys } from './stats.js'
@@ -21,6 +21,7 @@ import {
   fetchPercentile,
   fetchLeaderboard,
 } from './scores.js'
+import { isMobileOrTablet } from './device.js'
 
 /** Distinct game lifecycle states */
 const GameState = {
@@ -34,11 +35,12 @@ const DURATION_OPTIONS = [
   { label: '1min', seconds: 60 },
   { label: '3min', seconds: 180 },
   { label: '5min', seconds: 300 },
+  { label: 'Untimed', seconds: 0 },
 ]
 
 const state = {
   gameState: GameState.READY,
-  currentMode: 'words',
+  currentMode: 'letters',
   isShiftPressed: false,
   targetText: '',
   typedText: '',
@@ -61,9 +63,17 @@ const state = {
   beatPercent: null,
   isNewRecord: false,
   activeView: 'practice',
+  letterZone: 'full',
+  showEnglishHints: localStorage.getItem('thaitype-en-hints') === '1',
+  thaiFontStyle: localStorage.getItem('thaitype-font-style') === 'loopless' ? 'loopless' : 'looped',
+  wordMultiplier: Number(localStorage.getItem('thaitype-word-mult')) || 1,
 }
 
 const el = {}
+
+function isUntimed() {
+  return state.durationSeconds === 0
+}
 
 function durationLabel(seconds = state.durationSeconds) {
   const opt = DURATION_OPTIONS.find((o) => o.seconds === seconds)
@@ -78,6 +88,12 @@ function formatTime(ms) {
 }
 
 async function init() {
+  // Desktop-only gate — run before mounting the practice UI
+  if (isMobileOrTablet() && sessionStorage.getItem('thaitype-force-desktop') !== '1') {
+    showDesktopOnlyOverlay()
+    return
+  }
+
   initSpeech()
   renderShell()
   cacheEls()
@@ -96,6 +112,36 @@ async function init() {
       state.recentScore = null
       renderPersonalWidgets()
     }
+  })
+}
+
+function showDesktopOnlyOverlay() {
+  const root = document.querySelector('#app')
+  if (!root) return
+
+  root.innerHTML = `
+    <div class="device-gate" role="dialog" aria-modal="true" aria-labelledby="device-gate-title">
+      <div class="device-gate-card">
+        <div class="device-gate-brand">Thai<span>Type</span></div>
+        <h1 class="device-gate-title" id="device-gate-title">Desktop keyboard required</h1>
+        <p class="device-gate-copy">
+          ThaiType is built for physical keyboard practice (Kedmanee layout).
+          Phones and tablets can’t deliver the same muscle-memory training.
+        </p>
+        <p class="device-gate-copy device-gate-copy-soft">
+          Please open <strong>thaitypes.com</strong> on a computer to start practicing.
+        </p>
+        <div class="device-gate-actions">
+          <a class="btn btn-primary" href="https://thaitypes.com">thaitypes.com</a>
+          <button type="button" class="btn btn-ghost" id="btn-force-desktop">Continue anyway</button>
+        </div>
+      </div>
+    </div>
+  `
+
+  document.getElementById('btn-force-desktop')?.addEventListener('click', () => {
+    sessionStorage.setItem('thaitype-force-desktop', '1')
+    window.location.reload()
   })
 }
 
@@ -140,19 +186,44 @@ function renderShell() {
 
     <div id="view-practice" class="view-panel">
     <nav class="modes" role="tablist">
-      <button type="button" class="mode-tab" data-mode="letters">Letters</button>
-      <button type="button" class="mode-tab active" data-mode="words">Words</button>
+      <button type="button" class="mode-tab active" data-mode="letters">Letters</button>
+      <button type="button" class="mode-tab" data-mode="words">Words</button>
       <button type="button" class="mode-tab" data-mode="custom">Custom</button>
     </nav>
+
+    <div class="zone-bar" id="zone-bar">
+      <span class="zone-bar-label">Zone Training</span>
+      <div class="seg-control seg-control-sm" id="zone-control" role="group" aria-label="Letter zone">
+        <button type="button" class="seg-btn" data-zone="home">Home Row</button>
+        <button type="button" class="seg-btn" data-zone="top">Top Row</button>
+        <button type="button" class="seg-btn" data-zone="bottom">Bottom Row</button>
+        <button type="button" class="seg-btn active" data-zone="full">Full Keyboard</button>
+      </div>
+    </div>
+
+    <div class="repeat-bar" id="repeat-bar" hidden>
+      <span class="zone-bar-label">Repeat</span>
+      <div class="seg-control seg-control-sm" id="repeat-control" role="group" aria-label="Word repeat">
+        <button type="button" class="seg-btn active" data-mult="1">1x</button>
+        <button type="button" class="seg-btn" data-mult="2">2x</button>
+        <button type="button" class="seg-btn" data-mult="3">3x</button>
+        <button type="button" class="seg-btn" data-mult="5">5x</button>
+      </div>
+    </div>
 
     <div class="config-bar">
       <div class="seg-control" id="duration-control" role="group" aria-label="Test duration">
         ${durationBtns}
       </div>
+      <div class="font-style-control" id="font-style-control" role="group" aria-label="Thai font style">
+        <button type="button" class="seg-btn${state.thaiFontStyle === 'looped' ? ' active' : ''}" data-font-style="looped" title="Traditional looped glyphs (keyboard print)">Standard (Keyboard Print)</button>
+        <button type="button" class="seg-btn${state.thaiFontStyle === 'loopless' ? ' active' : ''}" data-font-style="loopless" title="Modern loopless glyphs">Modern (Loopless)</button>
+      </div>
       <div class="timer-display" id="timer-display" aria-live="polite">
         <span class="timer-value" id="timer-value">1:00</span>
-        <span class="timer-label">Time</span>
+        <span class="timer-label" id="timer-label">Time</span>
       </div>
+      <button type="button" class="btn btn-primary btn-finish" id="btn-finish" hidden>Finish</button>
     </div>
 
     <div class="stats-bar">
@@ -185,7 +256,11 @@ function renderShell() {
       </div>
 
       <div class="prompt-wrap">
-        <div class="prompt" id="prompt" aria-live="polite"></div>
+        <div class="qwerty-bridge" id="qwerty-bridge" hidden>
+          <span class="qwerty-bridge-label">Press</span>
+          <kbd class="qwerty-bridge-key" id="qwerty-bridge-key">—</kbd>
+        </div>
+        <div class="prompt text-display" id="prompt" aria-live="polite"></div>
         <div class="ime-banner" id="ime-banner" role="alert" aria-live="assertive">
           ⚠️ Please switch your system keyboard to Thai (Kedmanee Layout)
         </div>
@@ -195,9 +270,10 @@ function renderShell() {
 
     <section class="keyboard-section">
       <div class="keyboard-toolbar">
+        <button type="button" class="btn btn-ghost" id="btn-en-hints">Show English Key Hints</button>
         <button type="button" class="btn btn-ghost" id="btn-toggle-kb">Hide Keyboard</button>
       </div>
-      <div class="keyboard" id="keyboard" aria-hidden="true"></div>
+      <div class="keyboard virtual-keyboard" id="keyboard" aria-hidden="true"></div>
     </section>
     </div>
 
@@ -293,12 +369,22 @@ function cacheEls() {
   el.customPanel = document.getElementById('custom-panel')
   el.customText = document.getElementById('custom-text')
   el.toggleKb = document.getElementById('btn-toggle-kb')
+  el.enHintsBtn = document.getElementById('btn-en-hints')
   el.audioBtn = document.getElementById('btn-audio')
   el.timerValue = document.getElementById('timer-value')
+  el.timerLabel = document.getElementById('timer-label')
   el.timerDisplay = document.getElementById('timer-display')
   el.durationControl = document.getElementById('duration-control')
+  el.fontStyleControl = document.getElementById('font-style-control')
+  el.zoneBar = document.getElementById('zone-bar')
+  el.zoneControl = document.getElementById('zone-control')
+  el.repeatBar = document.getElementById('repeat-bar')
+  el.repeatControl = document.getElementById('repeat-control')
+  el.btnFinish = document.getElementById('btn-finish')
   el.confetti = document.getElementById('confetti-canvas')
   el.imeBanner = document.getElementById('ime-banner')
+  el.qwertyBridge = document.getElementById('qwerty-bridge')
+  el.qwertyBridgeKey = document.getElementById('qwerty-bridge-key')
   el.authSlot = document.getElementById('auth-slot')
   el.authModal = document.getElementById('auth-modal')
   el.profileWidgets = document.getElementById('profile-widgets')
@@ -308,6 +394,7 @@ function cacheEls() {
   el.viewRanking = document.getElementById('view-ranking')
   el.leaderboardBody = document.getElementById('leaderboard-body')
   el.leaderboardNote = document.getElementById('leaderboard-note')
+  applyThaiFontStyle()
 }
 
 function bindUiEvents() {
@@ -326,7 +413,27 @@ function bindUiEvents() {
     })
   })
 
+  el.zoneControl?.querySelectorAll('.seg-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (state.gameState === GameState.TYPING) return
+      setLetterZone(btn.dataset.zone)
+    })
+  })
+
+  el.repeatControl?.querySelectorAll('[data-mult]').forEach((btn) => {
+    btn.addEventListener('click', () => setWordMultiplier(Number(btn.dataset.mult)))
+  })
+
+  el.fontStyleControl?.querySelectorAll('[data-font-style]').forEach((btn) => {
+    btn.addEventListener('click', () => setThaiFontStyle(btn.dataset.fontStyle))
+  })
+
   document.getElementById('btn-restart').addEventListener('click', () => startNewRound())
+  document.getElementById('btn-finish').addEventListener('click', () => {
+    if (state.gameState === GameState.TYPING && isUntimed()) {
+      finishSession('complete')
+    }
+  })
   document.getElementById('btn-again').addEventListener('click', () => {
     closeModal()
     startNewRound()
@@ -335,7 +442,13 @@ function bindUiEvents() {
   document.getElementById('btn-custom-start').addEventListener('click', startCustom)
   document.getElementById('custom-file').addEventListener('change', onFileUpload)
   el.toggleKb.addEventListener('click', toggleKeyboard)
+  el.enHintsBtn.addEventListener('click', toggleEnglishHints)
   el.audioBtn.addEventListener('click', toggleAudio)
+
+  syncEnglishHintsUI()
+  syncWordMultiplierUI()
+  updateZoneBarVisibility()
+  updateRepeatBarVisibility()
 
   el.modal.addEventListener('click', (e) => {
     if (e.target === el.modal) closeModal()
@@ -521,11 +634,12 @@ function detachKeydown() {
 function setDuration(seconds) {
   if (state.gameState === GameState.TYPING) return
   state.durationSeconds = seconds
-  state.remainingMs = seconds * 1000
+  state.remainingMs = isUntimed() ? 0 : seconds * 1000
   el.durationControl.querySelectorAll('.seg-btn').forEach((btn) => {
     btn.classList.toggle('active', Number(btn.dataset.duration) === seconds)
   })
   updateTimerDisplay()
+  updateFinishButton()
   updateDurationLock()
 }
 
@@ -533,6 +647,10 @@ function updateDurationLock() {
   const locked = state.gameState === GameState.TYPING
   el.durationControl.classList.toggle('locked', locked)
   el.durationControl.querySelectorAll('.seg-btn').forEach((btn) => {
+    btn.disabled = locked
+  })
+  el.zoneControl?.classList.toggle('locked', locked)
+  el.zoneControl?.querySelectorAll('.seg-btn').forEach((btn) => {
     btn.disabled = locked
   })
 }
@@ -545,6 +663,8 @@ function setMode(mode) {
 
   const isCustom = mode === 'custom'
   el.customPanel.classList.toggle('visible', isCustom)
+  updateZoneBarVisibility()
+  updateRepeatBarVisibility()
 
   if (!isCustom) {
     startNewRound()
@@ -555,15 +675,104 @@ function setMode(mode) {
     state.targetText = ''
     state.typedText = ''
     state.startedAt = null
-    state.remainingMs = state.durationSeconds * 1000
+    state.remainingMs = isUntimed() ? 0 : state.durationSeconds * 1000
     el.prompt.innerHTML = ''
     el.hint.textContent = 'Paste or upload Thai text, then press Start Practice'
     el.hint.classList.add('visible')
     updateTimerDisplay()
+    updateFinishButton()
     updateDurationLock()
     updateStatsUI()
     clearKeyHint()
+    updateQwertyBridge()
   }
+}
+
+function setLetterZone(zoneId) {
+  if (!LETTER_ZONES[zoneId]) return
+  if (state.gameState === GameState.TYPING) return
+  state.letterZone = zoneId
+  el.zoneControl.querySelectorAll('.seg-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.zone === zoneId)
+  })
+  if (state.currentMode === 'letters') startNewRound()
+}
+
+function updateZoneBarVisibility() {
+  if (!el.zoneBar) return
+  el.zoneBar.hidden = state.currentMode !== 'letters'
+}
+
+function updateRepeatBarVisibility() {
+  if (!el.repeatBar) return
+  el.repeatBar.hidden = state.currentMode !== 'words'
+}
+
+function syncWordMultiplierUI() {
+  const n = [1, 2, 3, 5].includes(state.wordMultiplier) ? state.wordMultiplier : 1
+  state.wordMultiplier = n
+  el.repeatControl?.querySelectorAll('[data-mult]').forEach((btn) => {
+    btn.classList.toggle('active', Number(btn.dataset.mult) === n)
+  })
+}
+
+/**
+ * Changing multiplier regenerates text and resets the session
+ * (even mid-test) so accuracy stays clean.
+ */
+function setWordMultiplier(n) {
+  const next = [1, 2, 3, 5].includes(n) ? n : 1
+  if (next === state.wordMultiplier && state.gameState === GameState.READY) {
+    syncWordMultiplierUI()
+    return
+  }
+  state.wordMultiplier = next
+  localStorage.setItem('thaitype-word-mult', String(next))
+  syncWordMultiplierUI()
+  if (state.currentMode === 'words') {
+    startNewRound()
+  }
+}
+
+function syncEnglishHintsUI() {
+  if (!el.enHintsBtn) return
+  el.enHintsBtn.textContent = state.showEnglishHints
+    ? 'Hide English Key Hints'
+    : 'Show English Key Hints'
+  el.enHintsBtn.classList.toggle('active-toggle', state.showEnglishHints)
+  el.keyboard?.classList.toggle('show-en-hints', state.showEnglishHints)
+  updateKeyboardLabels()
+  updateQwertyBridge()
+}
+
+function toggleEnglishHints() {
+  state.showEnglishHints = !state.showEnglishHints
+  localStorage.setItem('thaitype-en-hints', state.showEnglishHints ? '1' : '0')
+  syncEnglishHintsUI()
+}
+
+function setThaiFontStyle(style) {
+  if (style !== 'looped' && style !== 'loopless') return
+  state.thaiFontStyle = style
+  localStorage.setItem('thaitype-font-style', style)
+  applyThaiFontStyle()
+}
+
+function applyThaiFontStyle() {
+  const style = state.thaiFontStyle === 'loopless' ? 'loopless' : 'looped'
+  document.documentElement.style.setProperty(
+    '--font-thai',
+    style === 'loopless' ? 'var(--font-thai-loopless)' : 'var(--font-thai-looped)',
+  )
+
+  el.prompt?.classList.remove('font-style-looped', 'font-style-loopless')
+  el.keyboard?.classList.remove('font-style-looped', 'font-style-loopless')
+  el.prompt?.classList.add(`font-style-${style}`)
+  el.keyboard?.classList.add(`font-style-${style}`)
+
+  el.fontStyleControl?.querySelectorAll('[data-font-style]').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.fontStyle === style)
+  })
 }
 
 function startNewRound() {
@@ -575,9 +784,9 @@ function startNewRound() {
     }
     state.targetText = normalizeText(el.customText.value)
   } else if (state.currentMode === 'letters') {
-    state.targetText = generateLettersText(40)
+    state.targetText = generateLettersText(40, state.letterZone)
   } else {
-    state.targetText = generateWordsText(18)
+    state.targetText = generateWordsText(18, state.wordMultiplier)
   }
 
   resetSession()
@@ -585,8 +794,11 @@ function startNewRound() {
   updateStatsUI()
   updateKeyHint()
   updateTimerDisplay()
+  updateFinishButton()
   updateDurationLock()
-  el.hint.textContent = 'Start typing — timer begins on first keystroke'
+  el.hint.textContent = isUntimed()
+    ? 'Start typing — free practice (no time limit)'
+    : 'Start typing — timer begins on first keystroke'
   el.hint.classList.add('visible')
   closeModal()
 }
@@ -603,8 +815,11 @@ function startCustom() {
   updateStatsUI()
   updateKeyHint()
   updateTimerDisplay()
+  updateFinishButton()
   updateDurationLock()
-  el.hint.textContent = 'Start typing — timer begins on first keystroke'
+  el.hint.textContent = isUntimed()
+    ? 'Start typing — free practice (no time limit)'
+    : 'Start typing — timer begins on first keystroke'
   el.hint.classList.add('visible')
 }
 
@@ -619,11 +834,12 @@ function resetSession() {
   state.correctKeystrokes = 0
   state.totalKeystrokes = 0
   state.startedAt = null
-  state.remainingMs = state.durationSeconds * 1000
+  state.remainingMs = isUntimed() ? 0 : state.durationSeconds * 1000
   state.finalStats = null
   state.gameState = GameState.READY
   clearImeWarning()
   attachKeydown()
+  updateFinishButton()
 }
 
 /* ── IME / keyboard layout mismatch ── */
@@ -687,27 +903,36 @@ function onFileUpload(e) {
   e.target.value = ''
 }
 
-/* ── Timer: only starts on READY → TYPING ── */
+/* ── Timer: only starts on READY → TYPING (skipped for Untimed countdown) ── */
 
 function transitionToTyping() {
   if (state.gameState !== GameState.READY) return
   state.gameState = GameState.TYPING
   state.startedAt = performance.now()
-  state.remainingMs = state.durationSeconds * 1000
+  state.remainingMs = isUntimed() ? 0 : state.durationSeconds * 1000
   el.hint.classList.remove('visible')
   updateDurationLock()
+  updateFinishButton()
   startTimerInterval()
 }
 
 function startTimerInterval() {
   stopTimer()
-  // Tick every 100ms for smooth countdown UI; WPM updates here too
   state.timerId = window.setInterval(() => {
     if (state.gameState !== GameState.TYPING) {
       stopTimer()
       return
     }
     const elapsed = performance.now() - state.startedAt
+
+    if (isUntimed()) {
+      // Count elapsed up; no auto-finish
+      state.remainingMs = elapsed
+      updateTimerDisplay()
+      el.wpm.textContent = String(calcWpm(state.correctKeystrokes, elapsed))
+      return
+    }
+
     state.remainingMs = Math.max(0, state.durationSeconds * 1000 - elapsed)
     updateTimerDisplay()
     el.wpm.textContent = String(calcWpm(state.correctKeystrokes, elapsed))
@@ -726,12 +951,33 @@ function stopTimer() {
 }
 
 function updateTimerDisplay() {
+  if (isUntimed()) {
+    if (el.timerLabel) el.timerLabel.textContent = 'Elapsed'
+    if (!state.startedAt) {
+      el.timerValue.textContent = '∞'
+    } else {
+      el.timerValue.textContent = formatTime(state.remainingMs || elapsedMs())
+    }
+    el.timerDisplay.classList.remove('urgent')
+    el.timerDisplay.classList.toggle('running', state.gameState === GameState.TYPING)
+    el.timerDisplay.classList.toggle('untimed', true)
+    return
+  }
+
+  if (el.timerLabel) el.timerLabel.textContent = 'Time'
+  el.timerDisplay.classList.remove('untimed')
   el.timerValue.textContent = formatTime(state.remainingMs)
   el.timerDisplay.classList.toggle(
     'urgent',
     state.gameState === GameState.TYPING && state.remainingMs <= 5000,
   )
   el.timerDisplay.classList.toggle('running', state.gameState === GameState.TYPING)
+}
+
+function updateFinishButton() {
+  if (!el.btnFinish) return
+  const show = isUntimed() && state.gameState === GameState.TYPING
+  el.btnFinish.hidden = !show
 }
 
 function onTimerExpired() {
@@ -788,16 +1034,37 @@ function renderKeyboard() {
 
 function updateKeyboardLabels() {
   const shifted = state.isShiftPressed
+  const showEn = state.showEnglishHints
+  el.keyboard.classList.toggle('show-en-hints', showEn)
+
   el.keyboard.querySelectorAll('.key[data-code]').forEach((keyEl) => {
     const code = keyEl.dataset.code
     if (code === 'ShiftLeft' || code === 'ShiftRight') {
       keyEl.classList.toggle('active-shift', shifted)
+      if (showEn) {
+        keyEl.innerHTML = `<span class="key-thai">Shift</span><span class="key-en">⇧</span>`
+      } else {
+        keyEl.textContent = 'Shift'
+      }
       return
     }
-    if (code === 'Space') return
+    if (code === 'Space') {
+      if (showEn) {
+        keyEl.innerHTML = `<span class="key-thai">space</span><span class="key-en">Space</span>`
+      } else {
+        keyEl.textContent = 'space'
+      }
+      return
+    }
     const entry = KEDMANEE[code]
     if (!entry) return
-    keyEl.textContent = shifted ? entry.shift : entry.normal
+    const thai = shifted ? entry.shift : entry.normal
+    if (showEn) {
+      const en = CODE_TO_QWERTY[code] || ''
+      keyEl.innerHTML = `<span class="key-thai">${escapeHtml(thai)}</span><span class="key-en">${escapeHtml(en)}</span>`
+    } else {
+      keyEl.textContent = thai
+    }
   })
 }
 
@@ -815,17 +1082,59 @@ function flashKey(code, kind) {
 
 function updateKeyHint() {
   clearKeyHint()
-  if (state.gameState === GameState.FINISHED) return
+  if (state.gameState === GameState.FINISHED) {
+    updateQwertyBridge()
+    return
+  }
   const next = state.targetText[state.typedText.length]
-  if (next == null) return
+  if (next == null) {
+    updateQwertyBridge()
+    return
+  }
   const code = CHAR_TO_CODE.get(next)
-  if (!code) return
+  if (!code) {
+    updateQwertyBridge()
+    return
+  }
   const keyEl = el.keyboard.querySelector(`[data-code="${code}"]`)
   if (keyEl) keyEl.classList.add('hint-next')
+
+  if (charRequiresShift(next)) {
+    el.keyboard.querySelectorAll('[data-code="ShiftLeft"], [data-code="ShiftRight"]').forEach((k) => {
+      k.classList.add('hint-shift')
+    })
+  }
+  updateQwertyBridge()
+}
+
+function updateQwertyBridge() {
+  if (!el.qwertyBridge || !el.qwertyBridgeKey) return
+  if (!state.showEnglishHints || state.gameState === GameState.FINISHED || !state.targetText) {
+    el.qwertyBridge.hidden = true
+    return
+  }
+  const next = state.targetText[state.typedText.length]
+  if (next == null || next === ' ') {
+    el.qwertyBridge.hidden = next !== ' '
+    if (next === ' ') {
+      el.qwertyBridge.hidden = false
+      el.qwertyBridgeKey.textContent = 'Space'
+    }
+    return
+  }
+  const label = qwertyLabelForChar(next)
+  if (!label) {
+    el.qwertyBridge.hidden = true
+    return
+  }
+  el.qwertyBridge.hidden = false
+  el.qwertyBridgeKey.textContent = label
 }
 
 function clearKeyHint() {
-  el.keyboard.querySelectorAll('.hint-next').forEach((k) => k.classList.remove('hint-next'))
+  el.keyboard.querySelectorAll('.hint-next, .hint-shift').forEach((k) => {
+    k.classList.remove('hint-next', 'hint-shift')
+  })
 }
 
 function toggleKeyboard() {
@@ -878,7 +1187,9 @@ function escapeHtml(str) {
 function appendMoreText() {
   if (state.currentMode === 'custom') return false
   const extra =
-    state.currentMode === 'letters' ? generateLettersText(28) : generateWordsText(10)
+    state.currentMode === 'letters'
+      ? generateLettersText(28, state.letterZone)
+      : generateWordsText(10, state.wordMultiplier)
   state.targetText = `${state.targetText} ${extra}`
   return true
 }
@@ -1008,6 +1319,7 @@ function elapsedMs() {
     return state.finalStats.elapsed
   }
   const raw = performance.now() - state.startedAt
+  if (isUntimed()) return raw
   return Math.min(raw, state.durationSeconds * 1000)
 }
 
@@ -1051,6 +1363,8 @@ async function finishSession(reason = 'timer') {
   state.gameState = GameState.FINISHED
   state.remainingMs = reason === 'timer' ? 0 : state.remainingMs
   clearKeyHint()
+  updateFinishButton()
+  updateDurationLock()
 
   const elapsed = elapsedMs() || 1
   const wpm = calcWpm(state.correctKeystrokes, elapsed)

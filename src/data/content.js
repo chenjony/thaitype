@@ -1,4 +1,6 @@
-/** Common Thai consonants & vowels for Letters mode */
+import { LETTER_ZONES } from '../data/keyboard.js'
+
+/** Common Thai consonants & vowels for Letters mode (full keyboard) */
 export const THAI_LETTERS = [
   'ก',
   'ข',
@@ -129,18 +131,41 @@ function pick(arr, n) {
   return out
 }
 
-export function generateLettersText(count = 24) {
+function poolForZone(zoneId = 'full') {
+  const zone = LETTER_ZONES[zoneId] || LETTER_ZONES.full
+  if (!zone.chars || zone.chars.length === 0) return THAI_LETTERS
+  return zone.chars
+}
+
+/**
+ * @param {number} count
+ * @param {'home'|'top'|'bottom'|'full'} [zoneId='full']
+ */
+export function generateLettersText(count = 24, zoneId = 'full') {
+  const pool = poolForZone(zoneId)
   const chars = []
   for (let i = 0; i < count; i++) {
-    chars.push(THAI_LETTERS[Math.floor(Math.random() * THAI_LETTERS.length)])
+    chars.push(pool[Math.floor(Math.random() * pool.length)])
   }
   return chars.join(' ')
 }
 
-export function generateWordsText(wordCount = 12) {
-  const useSentences = Math.random() > 0.45
-  if (useSentences) {
+/**
+ * @param {number} wordCount
+ * @param {number} [multiplier=1] consecutive repeats per word
+ */
+export function generateWordsText(wordCount = 12, multiplier = 1) {
+  const n = Math.max(1, Math.min(10, Number(multiplier) || 1))
+
+  // Sentence mode only when no repetition (keeps natural phrasing)
+  if (n === 1 && Math.random() > 0.45) {
     return pick(THAI_SENTENCES, 2 + Math.floor(Math.random() * 2)).join(' ')
   }
-  return pick(THAI_WORDS, wordCount).join(' ')
+
+  const words = pick(THAI_WORDS, wordCount)
+  const expanded = []
+  for (const w of words) {
+    for (let i = 0; i < n; i++) expanded.push(w)
+  }
+  return expanded.join(' ')
 }

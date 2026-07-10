@@ -59,6 +59,14 @@ export async function initAuth() {
   })
 }
 
+/** OAuth return URL — production site, never localhost in prod builds */
+function authRedirectTo() {
+  const fromEnv = import.meta.env.VITE_SITE_URL
+  if (fromEnv) return String(fromEnv).replace(/\/$/, '')
+  if (import.meta.env.PROD) return 'https://thaitypes.com'
+  return window.location.origin
+}
+
 /**
  * @param {'google' | 'facebook'} provider
  */
@@ -70,7 +78,7 @@ export async function signInWithProvider(provider) {
   const { error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: window.location.origin,
+      redirectTo: authRedirectTo(),
       queryParams:
         provider === 'google'
           ? { access_type: 'offline', prompt: 'consent' }

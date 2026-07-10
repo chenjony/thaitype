@@ -19,7 +19,9 @@
   --radius: 12px;
   --radius-sm: 8px;
   --font-ui: 'Outfit', system-ui, sans-serif;
-  --font-thai: 'IBM Plex Sans Thai', 'Thonburi', sans-serif;
+  --font-thai: 'Sarabun', 'Leelawadee', 'Angsana New', sans-serif;
+  --font-thai-looped: 'Sarabun', 'Leelawadee', 'Angsana New', sans-serif;
+  --font-thai-loopless: 'Kanit', 'Noto Sans Thai', 'Sukhumvit Set', sans-serif;
   --shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
 }
 
@@ -52,6 +54,79 @@ body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+/* ── Desktop-only device gate ── */
+.device-gate {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(45, 212, 168, 0.14), transparent 55%),
+    var(--bg-deep);
+}
+
+.device-gate-card {
+  width: 100%;
+  max-width: 26rem;
+  padding: 2rem 1.75rem;
+  border-radius: 20px;
+  background: rgba(26, 36, 32, 0.92);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.device-gate-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+}
+
+.device-gate-brand span {
+  color: var(--accent);
+}
+
+.device-gate-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.device-gate-copy {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin-bottom: 0.75rem;
+}
+
+.device-gate-copy-soft {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.device-gate-copy strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.device-gate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 1.5rem;
+}
+
+.device-gate-actions .btn {
+  width: 100%;
+  justify-content: center;
+  text-decoration: none;
 }
 
 /* ── Header ── */
@@ -599,7 +674,138 @@ body {
   display: flex;
   justify-content: center;
   gap: 0.35rem;
-  padding: 0.5rem 1rem 1rem;
+  padding: 0.5rem 1rem 0.75rem;
+}
+
+.zone-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem 1rem;
+  padding: 0 1rem 1rem;
+}
+
+.zone-bar[hidden],
+.repeat-bar[hidden] {
+  display: none !important;
+}
+
+.repeat-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem 1rem;
+  padding: 0 1rem 1rem;
+}
+
+.zone-bar-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.seg-control-sm .seg-btn {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+}
+
+.btn.active-toggle {
+  color: var(--accent);
+  border-color: rgba(45, 212, 168, 0.35);
+  background: var(--accent-soft);
+}
+
+.qwerty-bridge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  animation: bridge-in 0.25s ease;
+}
+
+.qwerty-bridge[hidden] {
+  display: none !important;
+}
+
+.qwerty-bridge-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #93c5fd;
+}
+
+.qwerty-bridge-key {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e0f2fe;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(147, 197, 253, 0.35);
+  border-radius: 8px;
+  padding: 0.2rem 0.55rem;
+  min-width: 1.75rem;
+  text-align: center;
+}
+
+@keyframes bridge-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.keyboard-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.65rem;
+}
+
+.key .key-thai {
+  font-family: var(--font-thai);
+  font-size: inherit;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.key .key-en {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  font-family: var(--font-ui);
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(147, 197, 253, 0.85);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.keyboard.show-en-hints .key.space .key-en {
+  position: static;
+  margin-left: 0.35rem;
+  font-size: 0.65rem;
+  opacity: 0.75;
+}
+
+.keyboard.show-en-hints .key.shift-mod .key-en {
+  position: static;
+  margin-left: 0.25rem;
+  font-size: 0.6rem;
 }
 
 .mode-tab {
@@ -636,6 +842,54 @@ body {
   gap: 1.5rem;
   flex-wrap: wrap;
   padding: 0 1rem 1rem;
+}
+
+.font-style-control {
+  display: inline-flex;
+  gap: 0.2rem;
+  padding: 0.25rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.font-style-control .seg-btn {
+  font-size: 0.72rem;
+  padding: 0.4rem 0.75rem;
+  max-width: 11rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Thai glyph style: looped (keyboard print) vs loopless (modern) */
+.font-style-looped,
+.font-style-looped .key-thai,
+.font-style-looped .char {
+  font-family: var(--font-thai-looped);
+}
+
+.font-style-loopless,
+.font-style-loopless .key-thai,
+.font-style-loopless .char {
+  font-family: var(--font-thai-loopless);
+}
+
+.text-display.font-style-looped,
+.virtual-keyboard.font-style-looped .key {
+  font-family: var(--font-thai-looped);
+}
+
+.text-display.font-style-loopless,
+.virtual-keyboard.font-style-loopless .key {
+  font-family: var(--font-thai-loopless);
+}
+
+.virtual-keyboard.font-style-looped .key.space,
+.virtual-keyboard.font-style-looped .key.shift-mod,
+.virtual-keyboard.font-style-loopless .key.space,
+.virtual-keyboard.font-style-loopless .key.shift-mod {
+  font-family: var(--font-ui);
 }
 
 .seg-control {
@@ -962,12 +1216,6 @@ body {
   padding: 0 1rem;
 }
 
-.keyboard-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 0.65rem;
-}
-
 .keyboard {
   background: var(--bg-elevated);
   border: 1px solid var(--line);
@@ -1023,6 +1271,7 @@ body {
 }
 
 .key {
+  position: relative;
   font-family: var(--font-thai);
   font-size: 1.05rem;
   font-weight: 500;
@@ -1093,6 +1342,38 @@ body {
   outline: 2px solid rgba(45, 212, 168, 0.55);
   outline-offset: 1px;
   color: var(--text);
+}
+
+.key.hint-shift {
+  outline: 2px solid rgba(96, 165, 250, 0.75);
+  outline-offset: 1px;
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(96, 165, 250, 0.45);
+  animation: shift-hint-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes shift-hint-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 12px 2px rgba(96, 165, 250, 0.45);
+  }
+}
+
+.btn-finish {
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-finish[hidden] {
+  display: none !important;
+}
+
+.timer-display.untimed .timer-value {
+  color: #93c5fd;
 }
 
 /* ── Glassmorphism result modal ── */

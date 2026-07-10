@@ -127,3 +127,117 @@ export function buildCharToCodeMap() {
 }
 
 export const CHAR_TO_CODE = buildCharToCodeMap()
+
+/** Characters that live on the Shift layer of Kedmanee (not the unshifted glyph). */
+export function buildShiftCharSet() {
+  const set = new Set()
+  for (const chars of Object.values(KEDMANEE)) {
+    if (chars.shift !== chars.normal) set.add(chars.shift)
+  }
+  return set
+}
+
+export const SHIFT_CHARS = buildShiftCharSet()
+
+export function charRequiresShift(ch) {
+  return SHIFT_CHARS.has(ch)
+}
+
+/** Physical QWERTY label shown on each key (English bridge hints) */
+export const CODE_TO_QWERTY = {
+  Backquote: '`',
+  Digit1: '1',
+  Digit2: '2',
+  Digit3: '3',
+  Digit4: '4',
+  Digit5: '5',
+  Digit6: '6',
+  Digit7: '7',
+  Digit8: '8',
+  Digit9: '9',
+  Digit0: '0',
+  Minus: '-',
+  Equal: '=',
+  KeyQ: 'Q',
+  KeyW: 'W',
+  KeyE: 'E',
+  KeyR: 'R',
+  KeyT: 'T',
+  KeyY: 'Y',
+  KeyU: 'U',
+  KeyI: 'I',
+  KeyO: 'O',
+  KeyP: 'P',
+  BracketLeft: '[',
+  BracketRight: ']',
+  Backslash: '\\',
+  KeyA: 'A',
+  KeyS: 'S',
+  KeyD: 'D',
+  KeyF: 'F',
+  KeyG: 'G',
+  KeyH: 'H',
+  KeyJ: 'J',
+  KeyK: 'K',
+  KeyL: 'L',
+  Semicolon: ';',
+  Quote: "'",
+  KeyZ: 'Z',
+  KeyX: 'X',
+  KeyC: 'C',
+  KeyV: 'V',
+  KeyB: 'B',
+  KeyN: 'N',
+  KeyM: 'M',
+  Comma: ',',
+  Period: '.',
+  Slash: '/',
+  Space: 'Space',
+  ShiftLeft: 'Shift',
+  ShiftRight: 'Shift',
+}
+
+/** Letter-mode zone training pools (unshifted Kedmanee glyphs per row) */
+function glyphsFromCodes(codes, { includeShift = false } = {}) {
+  const out = []
+  for (const code of codes) {
+    const entry = KEDMANEE[code]
+    if (!entry) continue
+    if (entry.normal && entry.normal !== ' ') out.push(entry.normal)
+    if (includeShift && entry.shift && entry.shift !== entry.normal) out.push(entry.shift)
+  }
+  return [...new Set(out)]
+}
+
+export const LETTER_ZONES = {
+  home: {
+    id: 'home',
+    label: 'Home Row',
+    // 基准行: ฟ ห ก ด เ ้ ่ า (+ ส ว ง for full home-row muscle memory)
+    chars: glyphsFromCodes(KEYBOARD_ROWS[2]),
+  },
+  top: {
+    id: 'top',
+    label: 'Top Row',
+    chars: glyphsFromCodes(KEYBOARD_ROWS[1]),
+  },
+  bottom: {
+    id: 'bottom',
+    label: 'Bottom Row',
+    chars: glyphsFromCodes(KEYBOARD_ROWS[3]),
+  },
+  full: {
+    id: 'full',
+    label: 'Full Keyboard',
+    chars: null, // use THAI_LETTERS in content.js
+  },
+}
+
+export function qwertyLabelForChar(ch) {
+  const code = CHAR_TO_CODE.get(ch)
+  if (!code) return null
+  const label = CODE_TO_QWERTY[code]
+  if (!label) return null
+  const needShift = charRequiresShift(ch)
+  return needShift ? `Shift + ${label}` : label
+}
