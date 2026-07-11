@@ -101,6 +101,7 @@ async function init() {
   renderKeyboard()
   updateTimerDisplay()
   startNewRound()
+  loadAdSense()
   await initAuth()
   onAuthChange(async (user) => {
     state.user = user
@@ -152,6 +153,7 @@ function renderShell() {
   ).join('')
 
   document.querySelector('#app').innerHTML = `
+    <div class="app-body">
     <header class="app-header">
       <div class="brand">
         <div class="brand-name">Thai<span>Type</span></div>
@@ -302,6 +304,19 @@ function renderShell() {
         <p class="leaderboard-note" id="leaderboard-note"></p>
       </section>
     </div>
+    </div>
+
+    <div class="ad-footer-container" aria-label="Advertisement">
+      <ins
+        class="adsbygoogle"
+        style="display:inline-block;width:728px;height:90px"
+        data-ad-client="ca-pub-6116387851760336"
+        data-ad-slot="5803509482"
+      ></ins>
+      <div class="ad-footer-debug" id="ad-footer-debug" hidden>
+        AdSense footer · client ok · waiting for data-ad-slot
+      </div>
+    </div>
 
     <div class="auth-modal-backdrop" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
       <div class="auth-modal">
@@ -351,6 +366,35 @@ function renderShell() {
       </div>
     </div>
   `
+}
+
+/** Push the bottom AdSense unit after shell mount (innerHTML scripts do not run). */
+function loadAdSense() {
+  const slot = document.querySelector('.ad-footer-container .adsbygoogle')
+  const debug = document.getElementById('ad-footer-debug')
+  if (!slot) return
+
+  const slotId = slot.getAttribute('data-ad-slot') || ''
+  const isPlaceholder = !slotId || /^Y+$/i.test(slotId) || /^X+$/i.test(slotId)
+
+  if (isPlaceholder) {
+    if (debug) {
+      debug.hidden = false
+      debug.textContent = `AdSense debug · client=${slot.getAttribute('data-ad-client')} · slot missing (still "${slotId}")`
+    }
+    console.warn(
+      '[AdSense] data-ad-slot is still a placeholder. Publisher ID is set, but ads will not fill until you create an ad unit in AdSense and paste its Slot ID here.',
+    )
+    return
+  }
+
+  if (debug) debug.hidden = true
+  if (slot.dataset.adsbygoogleStatus) return
+  try {
+    ;(window.adsbygoogle = window.adsbygoogle || []).push({})
+  } catch (err) {
+    console.warn('AdSense failed to load', err)
+  }
 }
 
 function cacheEls() {
