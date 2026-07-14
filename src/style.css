@@ -121,7 +121,7 @@ body {
 
 .device-gate-card {
   width: 100%;
-  max-width: 26rem;
+  max-width: 28rem;
   padding: 2rem 1.75rem;
   border-radius: 20px;
   background: rgba(26, 36, 32, 0.92);
@@ -221,6 +221,21 @@ body {
   align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.guide-link {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.35rem 0.55rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s, background 0.15s;
+}
+
+.guide-link:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .btn-sm {
@@ -1148,7 +1163,8 @@ body {
   font-size: clamp(1.5rem, 3.2vw, 2.15rem);
   font-weight: 400;
   line-height: 1.85;
-  letter-spacing: 0.02em;
+  /* letter-spacing breaks Thai mark stacking on mobile browsers */
+  letter-spacing: normal;
   text-align: center;
   word-break: break-word;
   max-width: 100%;
@@ -1158,6 +1174,7 @@ body {
 
 .char {
   position: relative;
+  display: inline;
   transition: color 0.08s;
 }
 

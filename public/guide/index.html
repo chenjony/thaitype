@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NYJLT7WB5X"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-NYJLT7WB5X');
+    </script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Ultimate Thai Keyboard Guide | Learn Kedmanee Layout | thaitypes.com</title>
+    <meta
+      name="description"
+      content="Learn how to master Thai blind typing and memorize the Kedmanee layout step-by-step. Discover strategies on row training, visual cues, and looped vs loopless fonts."
+    />
+    <meta
+      name="keywords"
+      content="Thai keyboard layout, learn Thai keyboard, Kedmanee layout, Thai typing guide, Thai blind typing, how to type Thai, Thai touch typing, Sarabun font typing, looped vs loopless Thai fonts"
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://thaitypes.com/guide" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-deep: #0c1210;
+        --bg-elevated: #1a2420;
+        --bg-soft: #222e29;
+        --line: rgba(180, 210, 195, 0.14);
+        --text: #e8f0eb;
+        --text-dim: #c5d4cc;
+        --muted: #7a9488;
+        --accent: #2dd4a8;
+        --accent-soft: rgba(45, 212, 168, 0.15);
+        --font-ui: 'Outfit', system-ui, sans-serif;
+        --font-thai: 'Sarabun', 'Leelawadee', 'Angsana New', sans-serif;
+        --shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--font-ui);
+        background:
+          radial-gradient(ellipse 80% 50% at 50% -10%, rgba(45, 212, 168, 0.1), transparent 55%),
+          radial-gradient(ellipse 50% 40% at 100% 100%, rgba(20, 80, 60, 0.22), transparent 50%),
+          var(--bg-deep);
+        color: var(--text);
+        min-height: 100vh;
+        line-height: 1.8;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .guide-nav-float {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        justify-content: flex-start;
+        padding: 0.85rem 1.25rem;
+        background: rgba(12, 18, 16, 0.9);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .guide-nav-float a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.5rem 0.95rem;
+        border-radius: 8px;
+        border: 1px solid rgba(45, 212, 168, 0.28);
+        background: rgba(45, 212, 168, 0.08);
+        transition: background 0.2s, border-color 0.2s;
+      }
+
+      .guide-nav-float a:hover {
+        background: rgba(45, 212, 168, 0.16);
+        border-color: rgba(45, 212, 168, 0.45);
+      }
+
+      .guide-page-wrapper {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 20px 72px;
+      }
+
+      .brand {
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 1.5rem;
+      }
+
+      .brand span {
+        color: var(--accent);
+      }
+
+      .guide-header {
+        margin-bottom: 40px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 24px;
+      }
+
+      .guide-header h1 {
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.2;
+        margin-bottom: 15px;
+      }
+
+      .guide-header .lede {
+        font-size: 1.15rem;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .guide-article-body {
+        font-size: 1.05rem;
+      }
+
+      .guide-article-body h2 {
+        font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--accent);
+        margin-top: 35px;
+        margin-bottom: 15px;
+        line-height: 1.3;
+      }
+
+      .guide-article-body h3 {
+        font-size: 1.25rem;
+        font-weight: 650;
+        margin-top: 25px;
+        margin-bottom: 10px;
+        color: var(--text);
+        line-height: 1.35;
+      }
+
+      .guide-article-body p {
+        color: var(--text-dim);
+        margin-bottom: 0.95rem;
+      }
+
+      .guide-article-body strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .guide-article-body em {
+        font-style: italic;
+        color: var(--text);
+      }
+
+      .guide-article-body code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.9em;
+        color: var(--accent);
+        background: var(--accent-soft);
+        border: 1px solid rgba(45, 212, 168, 0.2);
+        border-radius: 5px;
+        padding: 0.08em 0.4em;
+      }
+
+      .thai {
+        font-family: var(--font-thai);
+        font-weight: 500;
+        color: var(--text);
+        letter-spacing: 0.03em;
+      }
+
+      .guide-article-body a {
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .guide-article-body a:hover {
+        text-decoration: underline;
+      }
+
+      .guide-cta-footer {
+        margin-top: 50px;
+        padding-top: 28px;
+        border-top: 1px solid var(--line);
+        text-align: center;
+      }
+
+      .guide-cta-btn {
+        display: inline-block;
+        background: var(--accent);
+        color: #06110d;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        letter-spacing: -0.01em;
+        box-shadow: 0 8px 24px rgba(45, 212, 168, 0.28);
+        transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+      }
+
+      .guide-cta-btn:hover {
+        background: #3de0b4;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 28px rgba(45, 212, 168, 0.35);
+      }
+
+      @media (max-width: 640px) {
+        .guide-page-wrapper {
+          padding: 28px 16px 56px;
+        }
+
+        .guide-header .lede {
+          font-size: 1.05rem;
+        }
+
+        .guide-article-body {
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="guide-nav-float">
+      <a href="../">← Back to Typing Test</a>
+    </div>
+
+    <div class="guide-page-wrapper">
+      <p class="brand">Thai<span>Type</span></p>
+
+      <header class="guide-header">
+        <h1>The Ultimate Guide to Mastering the Thai Kedmanee Keyboard Layout</h1>
+        <p class="lede">
+          Learning how to type fast in Thai can feel intimidating. With 44 consonants, dozens of
+          vowels, and tone marks that stack above and below characters, the standard Thai Kedmanee
+          layout looks like a maze to beginners. This guide breaks down how to build pure
+          blind-typing muscle memory from scratch.
+        </p>
+      </header>
+
+      <article class="guide-article-body">
+        <h2>Why is the Thai Keyboard Layout So Unique?</h2>
+        <p>
+          Unlike Western languages where the <code>Shift</code> key simply converts a letter to
+          uppercase, the Thai <strong>Kedmanee layout</strong> uses the shift modifier to introduce
+          entirely new, distinct consonants and symbols. For instance, pressing the physical
+          <code>D</code> key types <strong class="thai">ก (Ko Kai)</strong>, but pressing
+          <code>Shift + D</code> inputs <strong class="thai">โ (Sra O)</strong>.
+        </p>
+        <p>
+          Furthermore, Thai is a multi-level language. Vowels and tone marks (like
+          <code class="thai">่</code>, <code class="thai">้</code>, <code class="thai">๊</code>,
+          <code class="thai">๋</code>) do not sit side-by-side with consonants; they stack
+          <strong>above or below</strong> them. When blind typing, your brain must learn the
+          chronological sequence of striking the base consonant first, followed by its upper or
+          lower accents.
+        </p>
+
+        <h2>Step-by-Step Strategy to Build Thai Muscle Memory</h2>
+        <p>
+          Trying to memorize all 44 Thai characters at once is a recipe for cognitive overload. To
+          transition from hunting-and-pecking to professional touch typing, implement these three
+          deliberate practice strategies:
+        </p>
+
+        <h3>1. Leverage Zoned Row-by-Row Training</h3>
+        <p>
+          Restrict your practice canvas. Start exclusively with the <strong>Home Row</strong>
+          (corresponding to physical keys <code>A, S, D, F, J, K, L, ;</code>). In Thai, this row
+          houses foundational characters such as
+          <strong class="thai">ฟ, ห, ก, ด, เ, ้, ่, า</strong>. Spend a few days training only
+          these keys until your index and middle fingers can find them instinctively before moving
+          up to the Top Row or down to the Bottom Row.
+        </p>
+
+        <h3>2. Master the Font Variance (Looped vs. Loopless)</h3>
+        <p>
+          One of the biggest visual traps for Thai learners is typography. Standard physical
+          keycaps print traditional Thai fonts with loops (small circles at the beginning of brush
+          strokes, such as the <em>Sarabun</em> font). However, modern Thai mobile apps and
+          geometric web designs widely use modern <strong>loopless</strong> fonts (like
+          <em>Kanit</em> or <em>Sukhumvit</em>) where these circles are removed, making the
+          characters look sleek and almost westernized.
+        </p>
+        <p>
+          Beginners should explicitly practice typing with <strong>Looped fonts</strong> first to
+          create a perfect visual match with their physical keyboard. As your speed grows, toggle
+          to <strong>Loopless fonts</strong> to train your brain to recognize modern Thai text
+          patterns in the wild.
+        </p>
+
+        <h3>3. Use Intelligent Visual Feedback Over Hitting Backspace</h3>
+        <p>
+          When you practice, keep your eyes strictly on the screen, not your hands. Utilize
+          reactive typing interfaces that flash color indicators (Green for right, Red for wrong)
+          and highlight upcoming keys dynamically. If you misstrike a tone mark, analyze the
+          on-screen visual guide to see where your finger drifted instead of looking down at your
+          physical desk.
+        </p>
+
+        <h2>Put Your Speed to the Test Globally</h2>
+        <p>
+          Real muscle memory is forged under pressure. Once you feel comfortable navigating the
+          home row or the full Kedmanee layout, it is time to gauge your performance against
+          learners worldwide.
+        </p>
+        <p>
+          Head back to the main lobby on
+          <a href="https://thaitypes.com">thaitypes.com</a>, customize your word multiplication
+          repeat settings, toggle your preferred font style, and claim your official global Words
+          Per Minute (WPM) milestone badge today!
+        </p>
+      </article>
+
+      <footer class="guide-cta-footer">
+        <a class="guide-cta-btn" href="../">Start Free Thai Typing Test Now</a>
+      </footer>
+    </div>
+  </body>
+</html>

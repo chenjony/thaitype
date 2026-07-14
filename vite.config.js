@@ -18,10 +18,6 @@ export default defineConfig({
         return html
           .replace(/ crossorigin(?:="[^"]*")?/g, '')
           .replace(
-            '<title>ThaiType — Thai Typing Practice</title>',
-            '<title>ThaiType BUILD-v3</title>',
-          )
-          .replace(
             '<head>',
             '<head>\n    <!-- BUILD-v3: paths must be ./assets/thaitype.js -->',
           )

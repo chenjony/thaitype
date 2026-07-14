@@ -21,7 +21,7 @@ import {
   fetchPercentile,
   fetchLeaderboard,
 } from './scores.js'
-import { isMobileOrTablet } from './device.js'
+import { isMobileOrTablet, detectGateLocale, getDeviceGateCopy } from './device.js'
 
 /** Distinct game lifecycle states */
 const GameState = {
@@ -120,30 +120,31 @@ function showDesktopOnlyOverlay() {
   const root = document.querySelector('#app')
   if (!root) return
 
+  const copy = getDeviceGateCopy(detectGateLocale())
+  document.documentElement.lang = copy.lang
+
   root.innerHTML = `
     <div class="device-gate" role="dialog" aria-modal="true" aria-labelledby="device-gate-title">
       <div class="device-gate-card">
         <div class="device-gate-brand">Thai<span>Type</span></div>
-        <h1 class="device-gate-title" id="device-gate-title">Desktop keyboard required</h1>
-        <p class="device-gate-copy">
-          ThaiType is built for physical keyboard practice (Kedmanee layout).
-          Phones and tablets can’t deliver the same muscle-memory training.
-        </p>
-        <p class="device-gate-copy device-gate-copy-soft">
-          Please open <strong>thaitypes.com</strong> on a computer to start practicing.
-        </p>
+        <h1 class="device-gate-title" id="device-gate-title">${copy.title}</h1>
+        <p class="device-gate-copy">${copy.body}</p>
+        <p class="device-gate-copy device-gate-copy-soft">${copy.soft}</p>
         <div class="device-gate-actions">
-          <a class="btn btn-primary" href="https://thaitypes.com">thaitypes.com</a>
-          <button type="button" class="btn btn-ghost" id="btn-force-desktop">Continue anyway</button>
+          <button type="button" class="btn btn-primary" id="btn-confirm-keyboard">${copy.confirm}</button>
+          <button type="button" class="btn btn-ghost" id="btn-force-desktop">${copy.continueWithout}</button>
         </div>
       </div>
     </div>
   `
 
-  document.getElementById('btn-force-desktop')?.addEventListener('click', () => {
+  const enterApp = () => {
     sessionStorage.setItem('thaitype-force-desktop', '1')
     window.location.reload()
-  })
+  }
+
+  document.getElementById('btn-confirm-keyboard')?.addEventListener('click', enterApp)
+  document.getElementById('btn-force-desktop')?.addEventListener('click', enterApp)
 }
 
 function renderShell() {
@@ -160,6 +161,7 @@ function renderShell() {
         <div class="brand-tag">Kedmanee Practice</div>
       </div>
       <div class="header-actions">
+        <a class="guide-link" href="./guide/">Keyboard Guide</a>
         <button type="button" class="btn btn-ghost" id="btn-audio" title="Toggle sound">Sound On</button>
         <button type="button" class="btn" id="btn-restart">Restart</button>
         <div class="auth-slot" id="auth-slot">
@@ -1195,26 +1197,75 @@ function toggleAudio() {
 
 /* ── Prompt rendering ── */
 
+/** Thai non-spacing marks that must stay attached to the preceding base glyph. */
+function isThaiCombiningMark(ch) {
+  const cp = ch.codePointAt(0)
+  return (
+    cp === 0x0e31 || // MAI HAN-AKAT
+    (cp >= 0x0e34 && cp <= 0x0e3a) || // SARA I..SARA UU
+    (cp >= 0x0e47 && cp <= 0x0e4e) // MAITAIKHU..YAMAKKAN + tone marks
+  )
+}
+
+/**
+ * Split text into grapheme clusters so Thai vowels/tones stay with their base.
+ * Per-code-point <span>s break stacking on mobile Safari/Chrome.
+ */
+function segmentGraphemes(text) {
+  if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
+    try {
+      const segmenter = new Intl.Segmenter('th', { granularity: 'grapheme' })
+      return [...segmenter.segment(text)].map((s) => s.segment)
+    } catch {
+      /* fall through */
+    }
+  }
+
+  const out = []
+  for (const ch of text) {
+    if (out.length > 0 && isThaiCombiningMark(ch)) {
+      out[out.length - 1] += ch
+    } else {
+      out.push(ch)
+    }
+  }
+  return out
+}
+
 function renderPrompt() {
   const target = state.targetText
   const typed = state.typedText
   const windowSize = 80
-  let start = 0
+  let winStart = 0
   if (typed.length > windowSize / 2) {
-    start = Math.max(0, typed.length - Math.floor(windowSize / 3))
+    winStart = Math.max(0, typed.length - Math.floor(windowSize / 3))
   }
-  const end = Math.min(target.length, start + windowSize)
+  const winEnd = Math.min(target.length, winStart + windowSize)
 
+  const graphemes = segmentGraphemes(target)
+  let offset = 0
   let html = ''
-  for (let i = start; i < end; i++) {
-    const ch = target[i]
-    const display = ch === ' ' ? '&nbsp;' : escapeHtml(ch)
+
+  for (const g of graphemes) {
+    const start = offset
+    const end = offset + g.length
+    offset = end
+
+    if (end <= winStart || start >= winEnd) continue
+
+    const display = g === ' ' ? '&nbsp;' : escapeHtml(g)
     let cls = 'char pending'
-    if (i < typed.length) {
-      cls = typed[i] === ch ? 'char correct' : 'char incorrect'
-    } else if (i === typed.length) {
-      cls = 'char current'
+
+    if (end <= typed.length) {
+      cls = typed.slice(start, end) === g ? 'char correct' : 'char incorrect'
+    } else if (start <= typed.length && typed.length < end) {
+      const partial = typed.slice(start)
+      cls =
+        partial.length > 0 && !g.startsWith(partial)
+          ? 'char incorrect current'
+          : 'char current'
     }
+
     html += `<span class="${cls}">${display}</span>`
   }
 
