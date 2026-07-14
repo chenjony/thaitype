@@ -1107,7 +1107,9 @@ function updateKeyboardLabels() {
     const thai = shifted ? entry.shift : entry.normal
     if (showEn) {
       const en = CODE_TO_QWERTY[code] || ''
-      keyEl.innerHTML = `<span class="key-thai">${escapeHtml(thai)}</span><span class="key-en">${escapeHtml(en)}</span>`
+      keyEl.innerHTML = `<span class="key-thai">${displayGrapheme(thai)}</span><span class="key-en">${escapeHtml(en)}</span>`
+    } else if (isOnlyThaiCombiningMarks(thai)) {
+      keyEl.innerHTML = `<span class="key-thai">${displayGrapheme(thai)}</span>`
     } else {
       keyEl.textContent = thai
     }
@@ -1210,6 +1212,7 @@ function isThaiCombiningMark(ch) {
 /**
  * Split text into grapheme clusters so Thai vowels/tones stay with their base.
  * Per-code-point <span>s break stacking on mobile Safari/Chrome.
+ * Do not glue marks onto whitespace (Letters mode isolates marks with spaces).
  */
 function segmentGraphemes(text) {
   if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
@@ -1223,7 +1226,8 @@ function segmentGraphemes(text) {
 
   const out = []
   for (const ch of text) {
-    if (out.length > 0 && isThaiCombiningMark(ch)) {
+    const prev = out[out.length - 1]
+    if (prev && isThaiCombiningMark(ch) && !/\s$/.test(prev)) {
       out[out.length - 1] += ch
     } else {
       out.push(ch)
@@ -1232,9 +1236,35 @@ function segmentGraphemes(text) {
   return out
 }
 
+function isOnlyThaiCombiningMarks(str) {
+  if (!str) return false
+  for (const ch of str) {
+    if (!isThaiCombiningMark(ch)) return false
+  }
+  return true
+}
+
+/**
+ * Safari gives isolated Thai marks zero advance width, so adjacent Letters-mode
+ * marks visually pile on top of each other. Anchor them on a translucent "อ"
+ * (Sarabun glyph) instead of U+25CC (often missing → tofu).
+ */
+function displayGrapheme(g) {
+  if (g === ' ') return '&nbsp;'
+  if (isOnlyThaiCombiningMarks(g)) {
+    return `<span class="thai-mark-solo"><span class="thai-mark-base" aria-hidden="true">อ</span>${escapeHtml(g)}</span>`
+  }
+  return escapeHtml(g)
+}
+
 function renderPrompt() {
   const target = state.targetText
   const typed = state.typedText
+  const isLetters = state.currentMode === 'letters'
+
+  el.prompt?.classList.toggle('prompt-letters', isLetters)
+  el.prompt?.classList.toggle('prompt-flow', !isLetters)
+
   const windowSize = 80
   let winStart = 0
   if (typed.length > windowSize / 2) {
@@ -1242,7 +1272,8 @@ function renderPrompt() {
   }
   const winEnd = Math.min(target.length, winStart + windowSize)
 
-  const graphemes = segmentGraphemes(target)
+  // Letters mode: always use deterministic split so Safari doesn't get odd clusters
+  const graphemes = isLetters ? segmentGraphemesLetters(target) : segmentGraphemes(target)
   let offset = 0
   let html = ''
 
@@ -1253,23 +1284,44 @@ function renderPrompt() {
 
     if (end <= winStart || start >= winEnd) continue
 
-    const display = g === ' ' ? '&nbsp;' : escapeHtml(g)
+    const display = displayGrapheme(g)
     let cls = 'char pending'
+    if (g === ' ') cls += ' char-space'
 
     if (end <= typed.length) {
-      cls = typed.slice(start, end) === g ? 'char correct' : 'char incorrect'
+      cls =
+        (typed.slice(start, end) === g ? 'char correct' : 'char incorrect') +
+        (g === ' ' ? ' char-space' : '')
     } else if (start <= typed.length && typed.length < end) {
       const partial = typed.slice(start)
       cls =
-        partial.length > 0 && !g.startsWith(partial)
+        (partial.length > 0 && !g.startsWith(partial)
           ? 'char incorrect current'
-          : 'char current'
+          : 'char current') + (g === ' ' ? ' char-space' : '')
     }
 
+    // Flex items (letters) already isolate; do not inject ZWNJ into word flow.
     html += `<span class="${cls}">${display}</span>`
   }
 
   el.prompt.innerHTML = html
+}
+
+/** Letters mode: one visible token per character/space — never merge across spaces. */
+function segmentGraphemesLetters(text) {
+  const out = []
+  for (const ch of text) {
+    const prev = out[out.length - 1]
+    if (prev && isThaiCombiningMark(ch) && !/\s$/.test(prev) && !isOnlyThaiCombiningMarks(prev)) {
+      // Allow stacking marks only onto a real base inside the same token (rare in letters)
+      out[out.length - 1] += ch
+    } else if (prev && isThaiCombiningMark(ch) && isOnlyThaiCombiningMarks(prev)) {
+      out[out.length - 1] += ch
+    } else {
+      out.push(ch)
+    }
+  }
+  return out
 }
 
 function escapeHtml(str) {

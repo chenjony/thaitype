@@ -19,9 +19,9 @@
   --radius: 12px;
   --radius-sm: 8px;
   --font-ui: 'Outfit', system-ui, sans-serif;
-  --font-thai: 'Sarabun', 'Leelawadee', 'Angsana New', sans-serif;
-  --font-thai-looped: 'Sarabun', 'Leelawadee', 'Angsana New', sans-serif;
-  --font-thai-loopless: 'Kanit', 'Noto Sans Thai', 'Sukhumvit Set', sans-serif;
+  --font-thai: 'Sarabun', 'Thonburi', 'Noto Sans Thai', 'Leelawadee', 'Angsana New', sans-serif;
+  --font-thai-looped: 'Sarabun', 'Thonburi', 'Noto Sans Thai', 'Leelawadee', 'Angsana New', sans-serif;
+  --font-thai-loopless: 'Kanit', 'Thonburi', 'Noto Sans Thai', 'Sukhumvit Set', sans-serif;
   --shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
 }
 
@@ -1123,12 +1123,13 @@ body {
 .prompt-wrap {
   width: 100%;
   position: relative;
-  min-height: 140px;
+  min-height: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.85rem;
+  gap: 0.55rem;
+  overflow: visible;
 }
 
 .ime-banner {
@@ -1162,19 +1163,24 @@ body {
   font-family: var(--font-thai);
   font-size: clamp(1.5rem, 3.2vw, 2.15rem);
   font-weight: 400;
-  line-height: 1.85;
-  /* letter-spacing breaks Thai mark stacking on mobile browsers */
-  letter-spacing: normal;
+  line-height: 2.1;
+  letter-spacing: 0;
   text-align: center;
-  word-break: break-word;
+  word-break: normal;
+  overflow-wrap: break-word;
   max-width: 100%;
   user-select: none;
   cursor: default;
+  overflow: visible;
+  padding: 0.25em 0;
+}
+
+/* Words / Custom: keep inline flow for natural Thai shaping */
+.prompt.prompt-flow .char {
+  display: inline;
 }
 
 .char {
-  position: relative;
-  display: inline;
   transition: color 0.08s;
 }
 
@@ -1190,9 +1196,11 @@ body {
   color: var(--wrong);
   text-decoration: underline;
   text-decoration-color: rgba(248, 113, 113, 0.5);
+  text-underline-offset: 0.2em;
 }
 
 .char.current {
+  position: relative;
   color: var(--text);
 }
 
@@ -1200,12 +1208,69 @@ body {
   content: '';
   position: absolute;
   left: 0;
-  bottom: 0.05em;
+  bottom: 0.02em;
   width: 100%;
   height: 2px;
   background: var(--caret);
   border-radius: 1px;
   animation: caret-blink 1s steps(1) infinite;
+  pointer-events: none;
+}
+
+/*
+ * Letters mode (Safari fix): each glyph is an atomic flex/inline-block box.
+ * WebKit otherwise attaches combining marks across neighboring <span>s → overlap.
+ */
+.prompt.prompt-letters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0.12em 0.22em;
+  row-gap: 0.28em;
+  font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+  line-height: 1.55;
+  max-height: 6.2em;
+  overflow: hidden;
+}
+
+.prompt.prompt-letters .char {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0.95em;
+  min-height: 1.15em;
+  padding: 0;
+  box-sizing: border-box;
+  unicode-bidi: isolate;
+  isolation: isolate;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Spaces already implied by flex gap — keep slot for typing, but don't eat layout */
+.prompt.prompt-letters .char.char-space {
+  min-width: 0;
+  width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Isolated vowels/tones — translucent อ base (in Sarabun) + stable width */
+.thai-mark-solo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0.95em;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.thai-mark-base {
+  opacity: 0.28;
 }
 
 @keyframes caret-blink {
