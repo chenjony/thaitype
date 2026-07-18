@@ -10,6 +10,11 @@ import {
   initAuth,
   onAuthChange,
   signInWithProvider,
+  signInWithPassword,
+  signUpWithPassword,
+  requestPasswordReset,
+  updatePassword,
+  updateProfile,
   signOut,
   getUser,
   isSupabaseConfigured,
@@ -22,6 +27,9 @@ import {
   fetchLeaderboard,
 } from './scores.js'
 import { isMobileOrTablet, detectGateLocale, getDeviceGateCopy } from './device.js'
+import { trackEvent } from './analytics.js'
+import { initI18n, languageSelect, bindLanguageSelect, locale } from './i18n.js'
+import { countryFlag, countryOptions, browserCountry } from './data/countries.js'
 
 /** Distinct game lifecycle states */
 const GameState = {
@@ -96,8 +104,10 @@ async function init() {
 
   initSpeech()
   renderShell()
+  initI18n(document.querySelector('#app'))
   cacheEls()
   bindUiEvents()
+  bindLanguageSelect()
   renderKeyboard()
   updateTimerDisplay()
   startNewRound()
@@ -108,6 +118,10 @@ async function init() {
     renderAuthUI()
     if (user) {
       await refreshPersonalStats()
+      if (new URLSearchParams(window.location.search).get('reset') === '1') {
+        openSettings()
+        history.replaceState({}, '', window.location.pathname)
+      }
     } else {
       state.personalBest = null
       state.recentScore = null
@@ -161,7 +175,11 @@ function renderShell() {
         <div class="brand-tag">Kedmanee Practice</div>
       </div>
       <div class="header-actions">
-        <a class="guide-link" href="./guide/">Keyboard Guide</a>
+        ${languageSelect()}
+        <a class="guide-link" href="./guide/index.html">Keyboard Guide</a>
+        <a class="guide-link" href="./about/index.html">About</a>
+        <a class="guide-link product-link product-link-vip" href="https://vip.thaitypes.com" data-track="vip_link_clicked" data-location="header">VIP</a>
+        <a class="guide-link" href="https://b.thaitypes.com" data-track="business_link_clicked" data-location="header">For Business</a>
         <button type="button" class="btn btn-ghost" id="btn-audio" title="Toggle sound">Sound On</button>
         <button type="button" class="btn" id="btn-restart">Restart</button>
         <div class="auth-slot" id="auth-slot">
@@ -249,8 +267,9 @@ function renderShell() {
 
     <main class="main">
       <div class="custom-panel" id="custom-panel">
-        <textarea id="custom-text" placeholder="วางข้อความภาษาไทยที่นี่… Paste Thai text to practice"></textarea>
+        <textarea id="custom-text" maxlength="50" placeholder="วางข้อความภาษาไทยที่นี่… Paste Thai text to practice"></textarea>
         <div class="custom-actions">
+          <span class="custom-limit" id="custom-limit">0 / 50 characters · Free plan</span>
           <label class="btn btn-ghost" style="cursor:pointer">
             Upload
             <input type="file" id="custom-file" accept=".txt,text/plain" hidden />
@@ -293,13 +312,14 @@ function renderShell() {
               <tr>
                 <th>#</th>
                 <th>Player</th>
+                <th>Country</th>
                 <th>WPM</th>
                 <th>Acc</th>
                 <th>Date</th>
               </tr>
             </thead>
             <tbody id="leaderboard-body">
-              <tr><td colspan="5" class="lb-empty">Loading…</td></tr>
+              <tr><td colspan="6" class="lb-empty">Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -320,11 +340,57 @@ function renderShell() {
       </div>
     </div>
 
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <div class="brand-name">Thai<span>Type</span></div>
+        <p>Free Thai typing practice for everyone.</p>
+      </div>
+      <div class="footer-links">
+        <div>
+          <strong>Products</strong>
+          <a href="./">Free Practice</a>
+          <a href="https://vip.thaitypes.com" data-track="vip_link_clicked" data-location="footer">ThaiType VIP</a>
+          <a href="https://b.thaitypes.com" data-track="business_link_clicked" data-location="footer">For Business</a>
+        </div>
+        <div>
+          <strong>ThaiType</strong>
+          <a href="./about/index.html">About</a>
+          <a href="./guide/index.html">Keyboard Guide</a>
+          <a href="./privacy.html">Privacy</a>
+        </div>
+      </div>
+    </footer>
+
     <div class="auth-modal-backdrop" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
       <div class="auth-modal">
         <button type="button" class="auth-modal-close" id="btn-auth-close" aria-label="Close">×</button>
-        <h2 class="auth-modal-title" id="auth-modal-title">Sign in to ThaiType</h2>
-        <p class="auth-modal-sub">Save scores, track personal bests, and climb the global ranking. Guests can still practice freely.</p>
+        <h2 class="auth-modal-title" id="auth-modal-title">Welcome to ThaiType</h2>
+        <div class="auth-tabs">
+          <button type="button" class="active" data-auth-view="signin">Sign In</button>
+          <button type="button" data-auth-view="signup">Create Account</button>
+        </div>
+        <form class="account-form" id="signin-form">
+          <label>Username or email<input id="signin-identifier" autocomplete="username" required /></label>
+          <label>Password<input id="signin-password" type="password" autocomplete="current-password" required /></label>
+          <button type="submit" class="btn btn-primary">Sign In</button>
+          <button type="button" class="auth-text-button" data-auth-view="forgot">Forgot password?</button>
+        </form>
+        <form class="account-form" id="signup-form" hidden>
+          <label>Username<input id="signup-username" minlength="3" maxlength="30" pattern="[A-Za-z0-9_.-]+" autocomplete="username" required /></label>
+          <label>Display name<input id="signup-display-name" maxlength="50" autocomplete="name" required /></label>
+          <label>Email<input id="signup-email" type="email" autocomplete="email" required /></label>
+          <label>Password<input id="signup-password" type="password" minlength="8" autocomplete="new-password" required /></label>
+          <label>Country<select id="signup-country"><option value="">Select country</option>${countryOptions(locale, browserCountry())}</select></label>
+          <button type="submit" class="btn btn-primary">Create Account</button>
+        </form>
+        <form class="account-form" id="forgot-form" hidden>
+          <p class="auth-modal-sub">Enter your email and we will send you a password reset link.</p>
+          <label>Email<input id="forgot-email" type="email" autocomplete="email" required /></label>
+          <button type="submit" class="btn btn-primary">Send Reset Link</button>
+          <button type="button" class="auth-text-button" data-auth-view="signin">Back to sign in</button>
+        </form>
+        <p class="auth-message" id="auth-message" aria-live="polite"></p>
+        <div class="auth-divider"><span>or continue with</span></div>
         <button type="button" class="oauth-btn oauth-google" id="btn-google">
           <span class="oauth-icon" aria-hidden="true">G</span>
           Continue with Google
@@ -333,9 +399,30 @@ function renderShell() {
           <span class="oauth-icon" aria-hidden="true">f</span>
           Continue with Facebook
         </button>
+        <button type="button" class="oauth-btn oauth-wechat" id="btn-wechat"><span class="oauth-icon">微</span>Continue with WeChat</button>
+        <button type="button" class="oauth-btn oauth-line" id="btn-line"><span class="oauth-icon">L</span>Continue with LINE</button>
         <p class="auth-modal-hint" id="auth-config-hint" hidden>
           Add <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> to enable OAuth.
         </p>
+      </div>
+    </div>
+
+    <div class="auth-modal-backdrop" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="auth-modal settings-modal">
+        <button type="button" class="auth-modal-close" id="btn-settings-close" aria-label="Close">×</button>
+        <h2 class="auth-modal-title" id="settings-title">Profile Settings</h2>
+        <form class="account-form" id="settings-form">
+          <label>Display name<input id="settings-display-name" maxlength="50" required /></label>
+          <label>Country<select id="settings-country"><option value="">Select country</option>${countryOptions(locale)}</select></label>
+          <label>Profile photo<input id="settings-avatar" type="file" accept="image/jpeg,image/png,image/webp" /></label>
+          <small>JPG, PNG or WebP · Maximum 2 MB</small>
+          <button type="submit" class="btn btn-primary">Save Profile</button>
+        </form>
+        <form class="account-form password-form" id="password-form">
+          <label>New password<input id="settings-password" type="password" minlength="8" autocomplete="new-password" /></label>
+          <button type="submit" class="btn">Update Password</button>
+        </form>
+        <p class="auth-message" id="settings-message" aria-live="polite"></p>
       </div>
     </div>
 
@@ -361,6 +448,13 @@ function renderShell() {
           <div class="modal-missed-label">Most missed keys</div>
           <div class="modal-missed-list" id="modal-missed"></div>
         </div>
+        <a class="vip-result-cta" href="https://vip.thaitypes.com" data-track="vip_link_clicked" data-location="result_modal">
+          <span>
+            <strong>See your progress with ThaiType VIP</strong>
+            <small>Full history, weak-key insights, trends and verified certificates.</small>
+          </span>
+          <span aria-hidden="true">→</span>
+        </a>
         <div class="modal-actions">
           <button type="button" class="btn btn-primary" id="btn-share">Download Certificate Image</button>
           <button type="button" class="btn" id="btn-again">Try Again</button>
@@ -414,6 +508,7 @@ function cacheEls() {
   el.pkBanner = document.getElementById('pk-banner')
   el.customPanel = document.getElementById('custom-panel')
   el.customText = document.getElementById('custom-text')
+  el.customLimit = document.getElementById('custom-limit')
   el.toggleKb = document.getElementById('btn-toggle-kb')
   el.enHintsBtn = document.getElementById('btn-en-hints')
   el.audioBtn = document.getElementById('btn-audio')
@@ -433,6 +528,7 @@ function cacheEls() {
   el.qwertyBridgeKey = document.getElementById('qwerty-bridge-key')
   el.authSlot = document.getElementById('auth-slot')
   el.authModal = document.getElementById('auth-modal')
+  el.settingsModal = document.getElementById('settings-modal')
   el.profileWidgets = document.getElementById('profile-widgets')
   el.statPb = document.getElementById('stat-pb')
   el.statRecent = document.getElementById('stat-recent')
@@ -444,6 +540,12 @@ function cacheEls() {
 }
 
 function bindUiEvents() {
+  document.querySelectorAll('[data-track]').forEach((link) => {
+    link.addEventListener('click', () => {
+      trackEvent(link.dataset.track, { location: link.dataset.location || 'unknown' })
+    })
+  })
+
   document.querySelectorAll('.mode-tab').forEach((tab) => {
     tab.addEventListener('click', () => setMode(tab.dataset.mode))
   })
@@ -474,7 +576,10 @@ function bindUiEvents() {
     btn.addEventListener('click', () => setThaiFontStyle(btn.dataset.fontStyle))
   })
 
-  document.getElementById('btn-restart').addEventListener('click', () => startNewRound())
+  document.getElementById('btn-restart').addEventListener('click', () => {
+    trackEvent('practice_restarted', { mode: state.currentMode })
+    startNewRound()
+  })
   document.getElementById('btn-finish').addEventListener('click', () => {
     if (state.gameState === GameState.TYPING && isUntimed()) {
       finishSession('complete')
@@ -487,6 +592,7 @@ function bindUiEvents() {
   document.getElementById('btn-share').addEventListener('click', onShare)
   document.getElementById('btn-custom-start').addEventListener('click', startCustom)
   document.getElementById('custom-file').addEventListener('change', onFileUpload)
+  el.customText.addEventListener('input', updateCustomLimit)
   el.toggleKb.addEventListener('click', toggleKeyboard)
   el.enHintsBtn.addEventListener('click', toggleEnglishHints)
   el.audioBtn.addEventListener('click', toggleAudio)
@@ -495,6 +601,7 @@ function bindUiEvents() {
   syncWordMultiplierUI()
   updateZoneBarVisibility()
   updateRepeatBarVisibility()
+  updateCustomLimit()
 
   el.modal.addEventListener('click', (e) => {
     if (e.target === el.modal) closeModal()
@@ -506,6 +613,16 @@ function bindUiEvents() {
   })
   document.getElementById('btn-google').addEventListener('click', () => handleOAuth('google'))
   document.getElementById('btn-facebook').addEventListener('click', () => handleOAuth('facebook'))
+  document.getElementById('btn-wechat').addEventListener('click', () => handleOAuth('custom:wechat'))
+  document.getElementById('btn-line').addEventListener('click', () => handleOAuth('custom:line'))
+  document.querySelectorAll('[data-auth-view]').forEach((button) => button.addEventListener('click', () => setAuthView(button.dataset.authView)))
+  document.getElementById('signin-form').addEventListener('submit', handlePasswordSignIn)
+  document.getElementById('signup-form').addEventListener('submit', handleSignUp)
+  document.getElementById('forgot-form').addEventListener('submit', handleForgotPassword)
+  document.getElementById('btn-settings-close').addEventListener('click', closeSettings)
+  document.getElementById('settings-form').addEventListener('submit', handleProfileSave)
+  document.getElementById('password-form').addEventListener('submit', handlePasswordUpdate)
+  el.settingsModal.addEventListener('click', (e) => { if (e.target === el.settingsModal) closeSettings() })
 
   // Delegate Sign In / Sign Out from auth slot (re-rendered)
   el.authSlot.addEventListener('click', (e) => {
@@ -514,6 +631,7 @@ function bindUiEvents() {
     const action = t.dataset.authAction
     if (action === 'signin') openAuthModal()
     if (action === 'signout') handleSignOut()
+    if (action === 'settings') openSettings()
   })
 
   window.addEventListener('keyup', onKeyUp)
@@ -554,6 +672,8 @@ function renderAuthUI() {
     <div class="auth-user">
       ${avatar}
       <span class="auth-name">${escapeHtml(user.displayName)}</span>
+      <span class="auth-country" title="${escapeAttr(user.countryCode || '')}">${countryFlag(user.countryCode)}</span>
+      <button type="button" class="btn btn-ghost btn-sm" data-auth-action="settings">Settings</button>
       <button type="button" class="btn btn-ghost btn-sm" data-auth-action="signout">Sign Out</button>
     </div>
   `
@@ -566,9 +686,131 @@ function escapeAttr(str) {
 }
 
 function openAuthModal() {
+  setAuthView('signin')
+  setAuthMessage('')
   el.authModal.classList.add('open')
   const hint = document.getElementById('auth-config-hint')
   if (hint) hint.hidden = isSupabaseConfigured
+}
+
+function setAuthMessage(message, isError = false) {
+  const node = document.getElementById('auth-message')
+  node.textContent = message
+  node.classList.toggle('error', isError)
+}
+
+function setAuthView(view) {
+  const visible = view === 'signup' ? 'signup' : view === 'forgot' ? 'forgot' : 'signin'
+  document.querySelectorAll('.account-form[id$="-form"]').forEach((form) => {
+    if (form.closest('#settings-modal')) return
+    form.hidden = form.id !== `${visible}-form`
+  })
+  document.querySelectorAll('.auth-tabs [data-auth-view]').forEach((button) => {
+    button.classList.toggle('active', button.dataset.authView === visible)
+  })
+  document.querySelector('.auth-tabs').hidden = visible === 'forgot'
+  document.querySelector('.auth-divider').hidden = visible === 'forgot'
+  document.querySelectorAll('.oauth-btn').forEach((button) => { button.hidden = visible === 'forgot' })
+  setAuthMessage('')
+}
+
+async function handlePasswordSignIn(event) {
+  event.preventDefault()
+  try {
+    setAuthMessage('Signing in…')
+    await signInWithPassword(
+      document.getElementById('signin-identifier').value.trim(),
+      document.getElementById('signin-password').value,
+    )
+    closeAuthModal()
+    event.currentTarget.reset()
+  } catch (err) {
+    console.error(err)
+    setAuthMessage(err.message || 'Unable to sign in.', true)
+  }
+}
+
+async function handleSignUp(event) {
+  event.preventDefault()
+  try {
+    setAuthMessage('Creating your account…')
+    const data = await signUpWithPassword({
+      username: document.getElementById('signup-username').value.trim(),
+      displayName: document.getElementById('signup-display-name').value.trim(),
+      email: document.getElementById('signup-email').value.trim(),
+      password: document.getElementById('signup-password').value,
+      countryCode: document.getElementById('signup-country').value,
+    })
+    event.currentTarget.reset()
+    if (data.session) closeAuthModal()
+    else setAuthMessage('Account created. Check your email to confirm your address.')
+  } catch (err) {
+    console.error(err)
+    setAuthMessage(err.message || 'Unable to create your account.', true)
+  }
+}
+
+async function handleForgotPassword(event) {
+  event.preventDefault()
+  try {
+    setAuthMessage('Sending reset link…')
+    await requestPasswordReset(document.getElementById('forgot-email').value.trim())
+    setAuthMessage('If that email has an account, a reset link is on its way.')
+  } catch (err) {
+    console.error(err)
+    setAuthMessage(err.message || 'Unable to send a reset link.', true)
+  }
+}
+
+function openSettings() {
+  if (!state.user) return
+  document.getElementById('settings-display-name').value = state.user.displayName || ''
+  document.getElementById('settings-country').value = state.user.countryCode || ''
+  document.getElementById('settings-avatar').value = ''
+  document.getElementById('settings-password').value = ''
+  document.getElementById('settings-message').textContent = ''
+  el.settingsModal.classList.add('open')
+}
+
+function closeSettings() {
+  el.settingsModal.classList.remove('open')
+}
+
+async function handleProfileSave(event) {
+  event.preventDefault()
+  const message = document.getElementById('settings-message')
+  try {
+    message.textContent = 'Saving…'
+    message.classList.remove('error')
+    await updateProfile({
+      displayName: document.getElementById('settings-display-name').value.trim(),
+      countryCode: document.getElementById('settings-country').value,
+      avatarFile: document.getElementById('settings-avatar').files[0],
+    })
+    message.textContent = 'Profile saved.'
+  } catch (err) {
+    console.error(err)
+    message.textContent = err.message || 'Unable to save your profile.'
+    message.classList.add('error')
+  }
+}
+
+async function handlePasswordUpdate(event) {
+  event.preventDefault()
+  const password = document.getElementById('settings-password').value
+  const message = document.getElementById('settings-message')
+  if (!password) return
+  try {
+    message.textContent = 'Updating password…'
+    message.classList.remove('error')
+    await updatePassword(password)
+    event.currentTarget.reset()
+    message.textContent = 'Password updated.'
+  } catch (err) {
+    console.error(err)
+    message.textContent = err.message || 'Unable to update your password.'
+    message.classList.add('error')
+  }
 }
 
 function closeAuthModal() {
@@ -624,16 +866,16 @@ function renderPersonalWidgets() {
 async function loadLeaderboard() {
   if (!el.leaderboardBody) return
   if (!isSupabaseConfigured) {
-    el.leaderboardBody.innerHTML = `<tr><td colspan="5" class="lb-empty">Connect Supabase to enable the global leaderboard.</td></tr>`
+    el.leaderboardBody.innerHTML = `<tr><td colspan="6" class="lb-empty">Connect Supabase to enable the global leaderboard.</td></tr>`
     el.leaderboardNote.textContent = 'Guest mode — scores are not ranked until you configure Supabase.'
     return
   }
 
-  el.leaderboardBody.innerHTML = `<tr><td colspan="5" class="lb-empty">Loading…</td></tr>`
+  el.leaderboardBody.innerHTML = `<tr><td colspan="6" class="lb-empty">Loading…</td></tr>`
   const rows = await fetchLeaderboard(50)
 
   if (!rows.length) {
-    el.leaderboardBody.innerHTML = `<tr><td colspan="5" class="lb-empty">No ranked scores yet. Be the first!</td></tr>`
+    el.leaderboardBody.innerHTML = `<tr><td colspan="6" class="lb-empty">No ranked scores yet. Be the first!</td></tr>`
     el.leaderboardNote.textContent = ''
     return
   }
@@ -652,9 +894,13 @@ async function loadLeaderboard() {
           })
         : '—'
       const me = state.user?.id === r.user_id ? ' lb-row-me' : ''
+      const flag = r.country_code
+        ? `<span class="lb-country" title="${escapeAttr(r.country_code)}">${countryFlag(r.country_code)}</span>`
+        : ''
       return `<tr class="${me}">
         <td class="lb-rank">${r.rank}</td>
         <td class="lb-player">${avatar}<span>${name}</span></td>
+        <td class="lb-country-cell">${flag}<span>${escapeHtml(r.country_code || '—')}</span></td>
         <td class="lb-wpm">${r.best_wpm}</td>
         <td>${r.best_accuracy}%</td>
         <td class="lb-date">${date}</td>
@@ -828,7 +1074,13 @@ function startNewRound() {
       el.hint.classList.add('visible')
       return
     }
-    state.targetText = normalizeText(el.customText.value)
+    const customText = normalizeText(el.customText.value)
+    if (customText.length > 50) {
+      el.hint.textContent = 'Free custom practice is limited to 50 characters.'
+      el.hint.classList.add('visible')
+      return
+    }
+    state.targetText = customText
   } else if (state.currentMode === 'letters') {
     state.targetText = generateLettersText(40, state.letterZone)
   } else {
@@ -855,6 +1107,12 @@ function startCustom() {
     el.customText.focus()
     return
   }
+  if (text.length > 50) {
+    el.hint.textContent = 'Free custom practice is limited to 50 characters.'
+    el.hint.classList.add('visible')
+    el.customText.focus()
+    return
+  }
   state.targetText = text
   resetSession()
   renderPrompt()
@@ -871,6 +1129,18 @@ function startCustom() {
 
 function normalizeText(raw) {
   return raw.replace(/\r\n/g, '\n').replace(/\s+/g, ' ').trim()
+}
+
+function updateCustomLimit() {
+  if (!el.customLimit) return
+  const labels = {
+    en: 'characters · Free plan',
+    'zh-CN': '个字符 · 免费版',
+    'zh-TW': '個字元 · 免費版',
+    th: 'อักขระ · แผนฟรี',
+    ru: 'символов · бесплатный план',
+  }
+  el.customLimit.textContent = `${el.customText.value.length} / 50 ${labels[locale]}`
 }
 
 function resetSession() {
@@ -943,7 +1213,8 @@ function onFileUpload(e) {
   if (!file) return
   const reader = new FileReader()
   reader.onload = () => {
-    el.customText.value = String(reader.result || '')
+    el.customText.value = String(reader.result || '').slice(0, 50)
+    updateCustomLimit()
   }
   reader.readAsText(file)
   e.target.value = ''
@@ -954,6 +1225,11 @@ function onFileUpload(e) {
 function transitionToTyping() {
   if (state.gameState !== GameState.READY) return
   state.gameState = GameState.TYPING
+  trackEvent('practice_started', {
+    mode: state.currentMode,
+    duration: state.durationSeconds,
+    device: isMobileOrTablet() ? 'mobile_or_tablet' : 'desktop',
+  })
   state.startedAt = performance.now()
   state.remainingMs = isUntimed() ? 0 : state.durationSeconds * 1000
   el.hint.classList.remove('visible')
@@ -1526,6 +1802,13 @@ async function finishSession(reason = 'timer') {
     beatPercent: null,
     isNewRecord: false,
   }
+  trackEvent('practice_completed', {
+    wpm,
+    accuracy,
+    duration: state.durationSeconds,
+    mode: state.currentMode,
+    reason,
+  })
   state.beatPercent = null
   state.isNewRecord = false
 
@@ -1666,6 +1949,7 @@ async function onShare() {
   const prev = btn.textContent
   btn.textContent = 'Generating…'
   btn.disabled = true
+  trackEvent('certificate_clicked', { wpm, accuracy, certificate_type: 'free_png' })
   try {
     await generateCertificate({
       wpm,

@@ -1,0 +1,760 @@
+<!doctype html><html><head><meta charset="utf-8"><title>ThaiType 商业化行动指南</title><style>
+body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif; line-height:1.55; color:#172033; max-width: 900px; margin: 36px auto; padding: 0 24px; }
+h1 { color:#0f3d5e; border-bottom: 3px solid #0ea5a4; padding-bottom:10px; }
+h2 { color:#115e59; margin-top:32px; border-bottom:1px solid #d7e5e5; padding-bottom:6px; }
+h3 { color:#334155; margin-top:24px; }
+table { border-collapse: collapse; width:100%; margin: 12px 0 20px; font-size: 14px; }
+th { background:#0f766e; color:white; }
+th, td { border:1px solid #cbd5e1; padding:8px 10px; vertical-align:top; }
+blockquote { border-left:4px solid #0ea5a4; margin:12px 0; padding:8px 16px; background:#f0fdfa; }
+code { background:#f1f5f9; padding:2px 4px; border-radius:4px; }
+</style></head><body><h1>ThaiType 商业化行动指南</h1>
+<p><strong>适用项目：</strong> thaitypes.com<br />
+<strong>日期：</strong> 2026-07-17<br />
+<strong>目标：</strong> 将免费泰语打字练习网站转化为具备收入能力的训练与认证平台</p>
+<hr />
+<h2>一、总体执行原则</h2>
+<ol>
+<li><strong>核心练习永久免费。</strong> 不要破坏获客入口。</li>
+<li><strong>付费卖结果，不卖输入框。</strong> 用户愿意为进步、记录、证书、管理能力付费。</li>
+<li><strong>先验证，再重开发。</strong> 每个付费功能先用最小版本验证点击和支付意愿。</li>
+<li><strong>完成页优先商业化。</strong> 用户取得成绩时最容易转化。</li>
+<li><strong>先 C 端现金流，再 B 端高客单价。</strong> Pro 和证书先做，教师版随后。</li>
+</ol>
+<hr />
+<h2>二、30 天优先行动清单</h2>
+<h3>第 1 周：埋点与变现入口</h3>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>动作</th>
+<th>负责人</th>
+<th>产出</th>
+<th>验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td>增加 Pro 按钮</td>
+<td>产品/开发</td>
+<td>Header 和完成页出现 Go Pro</td>
+<td>点击可进入 Pricing 页</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>创建 Pricing 页面</td>
+<td>产品/开发</td>
+<td>/pricing 页面</td>
+<td>有 Free / Pro / Classroom waitlist</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>完成页增加证书付费入口</td>
+<td>产品/开发</td>
+<td>Download Verified Certificate</td>
+<td>按钮点击可记录事件</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>接入基础分析</td>
+<td>开发</td>
+<td>GA4/Plausible/PostHog</td>
+<td>可看到开始、完成、点击、注册事件</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>邮箱收集</td>
+<td>产品/开发</td>
+<td>Pro/Teacher waitlist 表单</td>
+<td>邮箱可保存和导出</td>
+</tr>
+</tbody>
+</table>
+<h3>第 2 周：证书 MVP</h3>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>动作</th>
+<th>产出</th>
+<th>验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td>设计免费证书</td>
+<td>PNG，有 ThaiType 水印</td>
+<td>完成测试后可下载</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>设计高清证书</td>
+<td>PDF，无水印</td>
+<td>支付后可下载</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>增加证书验证 ID</td>
+<td>每张证书有唯一编号</td>
+<td>证书页显示编号</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>增加二维码</td>
+<td>指向成绩验证页</td>
+<td>手机扫码可打开验证页</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>写证书销售文案</td>
+<td>完成页提示</td>
+<td>点击率可追踪</td>
+</tr>
+</tbody>
+</table>
+<p>建议文案：</p>
+<blockquote>
+<p>Great job! You typed Thai at {{WPM}} WPM with {{ACCURACY}} accuracy. Download a verified certificate to save and share your result.</p>
+</blockquote>
+<h3>第 3 周：Pro MVP 功能</h3>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>动作</th>
+<th>产出</th>
+<th>验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td>去广告权益</td>
+<td>Pro 用户不显示广告</td>
+<td>登录 Pro 后广告隐藏</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>历史成绩</td>
+<td>保存每次测试 WPM/准确率</td>
+<td>用户可查看最近成绩</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>错误字符统计</td>
+<td>记录 missed keys</td>
+<td>完成页显示 Top mistakes</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>自定义练习增强</td>
+<td>Pro 可保存自定义文本</td>
+<td>可复用练习文本</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>进度趋势图</td>
+<td>简单折线图</td>
+<td>显示最近 7/30 次成绩</td>
+</tr>
+</tbody>
+</table>
+<h3>第 4 周：支付与上线</h3>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>动作</th>
+<th>产出</th>
+<th>验收标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td>接入支付</td>
+<td>Stripe/Paddle/Lemon Squeezy</td>
+<td>能完成测试支付</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>设置价格</td>
+<td>年付 + 终身</td>
+<td>Pricing 页显示清晰</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>权限校验</td>
+<td>Pro 功能仅会员可用</td>
+<td>未付费用户看到升级提示</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>上线首版</td>
+<td>ThaiType Pro v1</td>
+<td>真实用户可购买</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>退款和支持说明</td>
+<td>FAQ</td>
+<td>用户知道如何联系支持</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>三、推荐功能规格</h2>
+<h3>3.1 Pricing 页面结构</h3>
+<p>页面标题：</p>
+<blockquote>
+<p>Improve your Thai typing faster with ThaiType Pro</p>
+</blockquote>
+<p>套餐：</p>
+<h4>Free</h4>
+<ul>
+<li>Basic Thai typing practice</li>
+<li>Basic leaderboard</li>
+<li>Standard certificate with watermark</li>
+<li>Ads supported</li>
+</ul>
+<h4>Pro — Recommended</h4>
+<ul>
+<li>No ads</li>
+<li>Unlimited typing history</li>
+<li>Mistake analysis</li>
+<li>Custom practice texts</li>
+<li>Progress charts</li>
+<li>High-resolution certificates</li>
+<li>Daily goals</li>
+</ul>
+<p>价格：</p>
+<ul>
+<li>$24.99/year</li>
+<li>$49 lifetime</li>
+</ul>
+<h4>Classroom — Coming Soon</h4>
+<ul>
+<li>Create classes</li>
+<li>Assign typing practice</li>
+<li>Track student progress</li>
+<li>Export results</li>
+<li>Join waitlist</li>
+</ul>
+<h3>3.2 完成页结构</h3>
+<p>完成页应包含：</p>
+<ol>
+<li>成绩卡片：WPM、Accuracy、Missed、Duration</li>
+<li>对比：Best score / Last score / Improvement</li>
+<li>错误分析：Most missed keys</li>
+<li>下一步建议：Practice weak keys</li>
+<li>证书 CTA：Download verified certificate</li>
+<li>Pro CTA：Save your progress with Pro</li>
+<li>分享 CTA：Share result</li>
+</ol>
+<h3>3.3 Pro 权限边界</h3>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>Free</th>
+<th>Pro</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基础练习</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>排行榜</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>广告</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>历史记录</td>
+<td>最近 3 次</td>
+<td>无限</td>
+</tr>
+<tr>
+<td>错误分析</td>
+<td>简单展示</td>
+<td>完整分析</td>
+</tr>
+<tr>
+<td>自定义文本</td>
+<td>临时使用</td>
+<td>保存和复用</td>
+</tr>
+<tr>
+<td>证书</td>
+<td>水印 PNG</td>
+<td>高清 PDF / 无水印</td>
+</tr>
+<tr>
+<td>进度图表</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>每日目标</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>四、埋点事件清单</h2>
+<p>必须先埋点，否则无法判断商业化是否有效。</p>
+<h3>4.1 练习事件</h3>
+<table>
+<thead>
+<tr>
+<th>事件名</th>
+<th>触发时机</th>
+<th>关键参数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>practice_started</td>
+<td>用户开始输入</td>
+<td>mode, duration, device</td>
+</tr>
+<tr>
+<td>practice_completed</td>
+<td>测试完成</td>
+<td>wpm, accuracy, duration, mode</td>
+</tr>
+<tr>
+<td>practice_restarted</td>
+<td>点击重新开始</td>
+<td>mode</td>
+</tr>
+<tr>
+<td>keyboard_hint_toggled</td>
+<td>显示/隐藏提示</td>
+<td>state</td>
+</tr>
+</tbody>
+</table>
+<h3>4.2 商业事件</h3>
+<table>
+<thead>
+<tr>
+<th>事件名</th>
+<th>触发时机</th>
+<th>关键参数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pro_cta_clicked</td>
+<td>点击 Go Pro</td>
+<td>location</td>
+</tr>
+<tr>
+<td>pricing_viewed</td>
+<td>访问价格页</td>
+<td>referrer</td>
+</tr>
+<tr>
+<td>checkout_started</td>
+<td>开始支付</td>
+<td>plan</td>
+</tr>
+<tr>
+<td>purchase_completed</td>
+<td>支付成功</td>
+<td>plan, amount</td>
+</tr>
+<tr>
+<td>certificate_clicked</td>
+<td>点击证书下载</td>
+<td>wpm, accuracy</td>
+</tr>
+<tr>
+<td>certificate_purchase_started</td>
+<td>开始购买证书</td>
+<td>certificate_type</td>
+</tr>
+<tr>
+<td>certificate_purchase_completed</td>
+<td>购买成功</td>
+<td>amount</td>
+</tr>
+</tbody>
+</table>
+<h3>4.3 教师版验证事件</h3>
+<table>
+<thead>
+<tr>
+<th>事件名</th>
+<th>触发时机</th>
+<th>关键参数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>classroom_waitlist_viewed</td>
+<td>查看教师版区域</td>
+<td>source</td>
+</tr>
+<tr>
+<td>classroom_waitlist_joined</td>
+<td>留邮箱</td>
+<td>role, organization</td>
+</tr>
+<tr>
+<td>teacher_contact_clicked</td>
+<td>点击联系</td>
+<td>channel</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>五、SEO 执行清单</h2>
+<h3>第 1 批内容页面</h3>
+<table>
+<thead>
+<tr>
+<th>页面</th>
+<th>目标关键词</th>
+<th>CTA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/thai-keyboard-layout</td>
+<td>Thai keyboard layout</td>
+<td>Start practice</td>
+</tr>
+<tr>
+<td>/kedmanee-keyboard-layout</td>
+<td>Kedmanee keyboard</td>
+<td>Practice Kedmanee</td>
+</tr>
+<tr>
+<td>/how-to-type-thai-on-windows</td>
+<td>how to type Thai on Windows</td>
+<td>Try typing test</td>
+</tr>
+<tr>
+<td>/how-to-type-thai-on-mac</td>
+<td>how to type Thai on Mac</td>
+<td>Try typing test</td>
+</tr>
+<tr>
+<td>/thai-typing-practice</td>
+<td>Thai typing practice</td>
+<td>Start free practice</td>
+</tr>
+<tr>
+<td>/thai-typing-test</td>
+<td>Thai typing test</td>
+<td>Start 1-minute test</td>
+</tr>
+<tr>
+<td>/thai-typing-certificate</td>
+<td>Thai typing certificate</td>
+<td>Get certificate</td>
+</tr>
+<tr>
+<td>/thai-typing-speed</td>
+<td>Thai typing speed WPM</td>
+<td>Test your WPM</td>
+</tr>
+<tr>
+<td>/thai-typing-for-teachers</td>
+<td>Thai typing for teachers</td>
+<td>Join classroom waitlist</td>
+</tr>
+<tr>
+<td>/learn-thai-typing</td>
+<td>learn Thai typing</td>
+<td>Start beginner path</td>
+</tr>
+</tbody>
+</table>
+<h3>每篇页面基本结构</h3>
+<ol>
+<li>H1 包含关键词</li>
+<li>300–800 字实用内容</li>
+<li>图片或键盘布局说明</li>
+<li>FAQ 3–5 个问题</li>
+<li>内链到练习页</li>
+<li>CTA 按钮</li>
+<li>Schema：FAQPage 或 HowTo</li>
+</ol>
+<hr />
+<h2>六、教师版验证脚本</h2>
+<h3>6.1 目标渠道</h3>
+<ul>
+<li>Reddit: r/learnthai</li>
+<li>Facebook 泰语学习群</li>
+<li>italki / Preply 老师</li>
+<li>大学泰语课程老师</li>
+<li>语言学校官网邮箱</li>
+<li>YouTube 泰语教学频道</li>
+</ul>
+<h3>6.2 外联私信模板</h3>
+<p>英文版：</p>
+<blockquote>
+<p>Hi, I built ThaiType, a free Thai typing practice tool for learners. I’m testing a classroom version that lets teachers assign Thai typing practice and track students’ WPM and accuracy. Would this be useful for your students? I’d love to offer free early access in exchange for feedback.</p>
+</blockquote>
+<p>中文版理解：</p>
+<blockquote>
+<p>我做了一个免费的泰语打字练习工具，现在准备做教师版，可以让老师布置练习、查看学生 WPM 和准确率。如果你教泰语，我希望邀请你免费试用并给反馈。</p>
+</blockquote>
+<h3>6.3 访谈问题</h3>
+<ol>
+<li>你的学生现在是否需要练习泰语输入？</li>
+<li>你现在如何检查他们的输入能力？</li>
+<li>如果有班级排行榜和成绩导出，你会用吗？</li>
+<li>你最需要看哪些数据：WPM、准确率、错字、练习时间？</li>
+<li>你愿意为这个工具付费吗？如果愿意，合理价格是多少？</li>
+<li>你更愿意按老师付费，还是按学生数付费？</li>
+</ol>
+<hr />
+<h2>七、支付与套餐建议</h2>
+<h3>第一版只上三个产品</h3>
+<table>
+<thead>
+<tr>
+<th>产品</th>
+<th style="text-align: right;">价格</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Verified Certificate</td>
+<td style="text-align: right;">$2.99</td>
+<td>测试即时付费意愿</td>
+</tr>
+<tr>
+<td>ThaiType Pro Annual</td>
+<td style="text-align: right;">$24.99/年</td>
+<td>核心订阅收入</td>
+</tr>
+<tr>
+<td>ThaiType Pro Lifetime</td>
+<td style="text-align: right;">$49 一次性</td>
+<td>提高早期现金转化</td>
+</tr>
+</tbody>
+</table>
+<p>暂时不要上太多套餐，否则用户选择成本高。</p>
+<h3>支付工具建议</h3>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>适合情况</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stripe</td>
+<td>有 Stripe 可用主体</td>
+<td>灵活、开发成熟</td>
+</tr>
+<tr>
+<td>Paddle</td>
+<td>面向全球数字产品</td>
+<td>可处理税务，适合 SaaS</td>
+</tr>
+<tr>
+<td>Lemon Squeezy</td>
+<td>小团队快速上线</td>
+<td>适合数字产品和授权</td>
+</tr>
+<tr>
+<td>PayPal</td>
+<td>覆盖部分国际用户</td>
+<td>可作为补充</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>八、每周管理看板</h2>
+<p>建议每周一查看以下数据：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>指标</th>
+<th style="text-align: right;">目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>流量</td>
+<td>总访问用户</td>
+<td style="text-align: right;">环比增长</td>
+</tr>
+<tr>
+<td>练习</td>
+<td>practice_started</td>
+<td style="text-align: right;">访问到开始 &gt;40%</td>
+</tr>
+<tr>
+<td>练习</td>
+<td>practice_completed</td>
+<td style="text-align: right;">开始到完成 &gt;50%</td>
+</tr>
+<tr>
+<td>商业</td>
+<td>pro_cta_clicked</td>
+<td style="text-align: right;">完成用户中 &gt;3%</td>
+</tr>
+<tr>
+<td>商业</td>
+<td>certificate_clicked</td>
+<td style="text-align: right;">完成用户中 &gt;10%</td>
+</tr>
+<tr>
+<td>商业</td>
+<td>purchase_completed</td>
+<td style="text-align: right;">持续出现付费</td>
+</tr>
+<tr>
+<td>留存</td>
+<td>7 日复访</td>
+<td style="text-align: right;">&gt;10%</td>
+</tr>
+<tr>
+<td>SEO</td>
+<td>Search Console clicks</td>
+<td style="text-align: right;">环比增长</td>
+</tr>
+<tr>
+<td>教师版</td>
+<td>waitlist_joined</td>
+<td style="text-align: right;">每周新增</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>九、90 天里程碑</h2>
+<h3>30 天</h3>
+<ul>
+<li>完成商业化入口</li>
+<li>证书 MVP 上线</li>
+<li>Pricing 页面上线</li>
+<li>Pro 第一版上线</li>
+<li>有完整数据埋点</li>
+</ul>
+<h3>60 天</h3>
+<ul>
+<li>Pro 会员功能完善</li>
+<li>发布至少 10 个 SEO 页面</li>
+<li>开始获得自然搜索增长</li>
+<li>有第一批付费用户</li>
+<li>完成教师版需求访谈</li>
+</ul>
+<h3>90 天</h3>
+<ul>
+<li>Classroom MVP 上线</li>
+<li>3–5 位老师试用</li>
+<li>明确教师版付费意愿</li>
+<li>形成 Free / Pro / Certificate / Classroom 的商业闭环</li>
+</ul>
+<hr />
+<h2>十、Go / No-Go 决策标准</h2>
+<h3>证书功能</h3>
+<p>继续投入条件：</p>
+<ul>
+<li>完成页证书点击率 &gt;10%</li>
+<li>证书购买转化率 &gt;1%</li>
+</ul>
+<p>若低于标准：</p>
+<ul>
+<li>优化证书设计和文案</li>
+<li>降低价格到 $1.99</li>
+<li>增加可验证二维码和分享价值</li>
+</ul>
+<h3>Pro 会员</h3>
+<p>继续投入条件：</p>
+<ul>
+<li>Pricing 页访问到购买 &gt;1%</li>
+<li>Pro CTA 点击率 &gt;3%</li>
+<li>Pro 用户 7 日留存高于免费用户</li>
+</ul>
+<p>若低于标准：</p>
+<ul>
+<li>调整权益，把错误分析和历史成绩做得更明显</li>
+<li>增加终身版</li>
+<li>在完成页展示“你本周进步了多少”的预览</li>
+</ul>
+<h3>Classroom</h3>
+<p>继续投入条件：</p>
+<ul>
+<li>20 个以上老师/机构加入等待名单</li>
+<li>3 个以上真实班级愿意试用</li>
+<li>老师明确愿意为成绩追踪或导出付费</li>
+</ul>
+<p>若低于标准：</p>
+<ul>
+<li>暂缓完整开发</li>
+<li>只保留自定义练习和成绩分享链接</li>
+<li>继续做个人 Pro 和 SEO</li>
+</ul>
+<hr />
+<h2>十一、建议立即创建的任务列表</h2>
+<h3>产品任务</h3>
+<ul>
+<li>[ ] 设计 Pricing 页面</li>
+<li>[ ] 设计完成页商业化模块</li>
+<li>[ ] 设计证书模板</li>
+<li>[ ] 定义 Free / Pro 权限</li>
+<li>[ ] 设计历史成绩页面</li>
+<li>[ ] 设计错误分析模块</li>
+</ul>
+<h3>开发任务</h3>
+<ul>
+<li>[ ] 接入分析工具</li>
+<li>[ ] 增加商业事件埋点</li>
+<li>[ ] 增加用户成绩保存</li>
+<li>[ ] 增加 Pro 权限判断</li>
+<li>[ ] 接入支付</li>
+<li>[ ] 生成 PDF 证书</li>
+<li>[ ] 创建证书验证页面</li>
+</ul>
+<h3>增长任务</h3>
+<ul>
+<li>[ ] 写 10 个 SEO 页面</li>
+<li>[ ] 配置 Search Console</li>
+<li>[ ] 增加 FAQ Schema</li>
+<li>[ ] 制作 Thai keyboard layout 图片</li>
+<li>[ ] 建立教师版等待名单</li>
+<li>[ ] 外联 20 位老师</li>
+</ul>
+<h3>运营任务</h3>
+<ul>
+<li>[ ] 每周查看转化数据</li>
+<li>[ ] 记录用户反馈</li>
+<li>[ ] 维护 FAQ</li>
+<li>[ ] 处理退款和支持邮箱</li>
+<li>[ ] 收集证书使用场景</li>
+</ul>
+<hr />
+<h2>十二、最终执行建议</h2>
+<p>从明天开始，最优先做这 5 件事：</p>
+<ol>
+<li><strong>上线 Pricing 页面。</strong> 哪怕支付还没接，也先验证点击。</li>
+<li><strong>完成页加入证书和 Pro CTA。</strong> 这是最高意图页面。</li>
+<li><strong>埋点。</strong> 没有数据就无法判断方向。</li>
+<li><strong>做付费证书 MVP。</strong> 最快验证收入。</li>
+<li><strong>建立 Classroom waitlist。</strong> 为 B2B 收入提前收集线索。</li>
+</ol>
+<p>这套行动指南的核心不是“做很多功能”，而是用最短路径验证：用户是否愿意为泰语打字训练的结果付费。</p></body></html>

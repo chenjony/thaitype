@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About ThaiType | Free, VIP and Business</title>
+    <meta name="description" content="Meet the ThaiType product family: free Kedmanee typing practice, advanced personal training with ThaiType VIP, and learning management for teachers and organizations." />
+    <link rel="canonical" href="https://thaitypes.com/about/" />
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root { --bg:#0c1210; --panel:#1a2420; --line:rgba(180,210,195,.14); --text:#e8f0eb; --muted:#8aa096; --accent:#2dd4a8; }
+      * { box-sizing:border-box; margin:0; padding:0; }
+      body { min-height:100vh; font-family:'Outfit',system-ui,sans-serif; color:var(--text); background:radial-gradient(ellipse 80% 55% at 50% -10%,rgba(45,212,168,.14),transparent 60%),var(--bg); line-height:1.6; }
+      a { color:inherit; }
+      header, main, footer { width:min(1100px,calc(100% - 2rem)); margin:auto; }
+      header { min-height:72px; display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+      .brand { font-size:1.45rem; font-weight:700; text-decoration:none; letter-spacing:-.03em; }
+      .brand span, .eyebrow { color:var(--accent); }
+      nav { display:flex; gap:1rem; align-items:center; }
+      nav a { color:var(--muted); text-decoration:none; font-size:.9rem; }
+      nav a:hover { color:var(--accent); }
+      .page-language-select { color:var(--text); background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:.45rem .6rem; }
+      .hero { max-width:800px; padding:7rem 0 5rem; }
+      .eyebrow { font-size:.75rem; font-weight:600; text-transform:uppercase; letter-spacing:.12em; }
+      h1 { font-size:clamp(2.5rem,7vw,5rem); line-height:1.02; letter-spacing:-.05em; margin:.75rem 0 1.25rem; }
+      .hero p { color:#b6c7bf; font-size:1.15rem; max-width:700px; }
+      .promise { margin-top:1.5rem; padding-left:1rem; border-left:3px solid var(--accent); color:var(--text); font-weight:500; }
+      .section { padding:5rem 0; border-top:1px solid var(--line); }
+      .section-heading { max-width:680px; margin-bottom:2rem; }
+      .section-heading h2 { font-size:clamp(1.9rem,4vw,3rem); line-height:1.1; letter-spacing:-.035em; margin:.55rem 0 .8rem; }
+      .section-heading p, .story p { color:#aebfb7; }
+      .story { display:grid; grid-template-columns:.8fr 1.2fr; gap:4rem; align-items:start; }
+      .story h2 { font-size:clamp(1.9rem,4vw,3rem); line-height:1.1; letter-spacing:-.035em; }
+      .story-copy { display:grid; gap:1rem; font-size:1.02rem; }
+      .principles { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:2rem; }
+      .principle { padding:1.25rem 0; border-top:2px solid rgba(45,212,168,.45); }
+      .principle strong { display:block; margin-bottom:.4rem; }
+      .principle p { color:var(--muted); font-size:.9rem; }
+      .products { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+      .card { display:flex; flex-direction:column; min-height:330px; padding:1.5rem; background:rgba(26,36,32,.88); border:1px solid var(--line); border-radius:18px; }
+      .card.vip { border-color:rgba(45,212,168,.38); box-shadow:0 18px 55px rgba(0,0,0,.18); }
+      .tag { color:var(--accent); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; font-weight:600; }
+      .status { align-self:flex-start; margin-bottom:1rem; padding:.22rem .5rem; border-radius:999px; color:#bcd0c7; background:rgba(255,255,255,.06); font-size:.68rem; font-weight:600; }
+      .status.live { color:#06241c; background:var(--accent); }
+      h2 { font-size:1.45rem; margin:.4rem 0 .65rem; }
+      .card > p { color:var(--muted); font-size:.95rem; }
+      ul { list-style:none; margin:1.25rem 0 1.5rem; color:#c7d5cf; font-size:.9rem; }
+      li { margin:.45rem 0; }
+      li::before { content:'✓'; color:var(--accent); margin-right:.55rem; }
+      .cta { margin-top:auto; display:inline-flex; justify-content:center; padding:.7rem 1rem; border-radius:9px; border:1px solid var(--line); text-decoration:none; font-weight:600; }
+      .cta.primary { color:#06241c; background:var(--accent); border-color:var(--accent); }
+      .cta:hover { transform:translateY(-1px); }
+      .audiences { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; }
+      .audience { padding:1.5rem; border:1px solid var(--line); border-radius:14px; }
+      .audience h3 { margin-bottom:.45rem; }
+      .audience p { color:var(--muted); }
+      .closing { margin:1rem 0 5rem; padding:clamp(2rem,6vw,4rem); text-align:center; border:1px solid rgba(45,212,168,.26); border-radius:22px; background:linear-gradient(135deg,rgba(45,212,168,.13),rgba(26,36,32,.75)); }
+      .closing h2 { font-size:clamp(2rem,5vw,3.5rem); line-height:1.05; letter-spacing:-.04em; max-width:700px; margin:0 auto 1rem; }
+      .closing p { color:#b6c7bf; max-width:620px; margin:0 auto 1.5rem; }
+      .closing .cta { margin:0; }
+      footer { display:flex; justify-content:space-between; gap:1rem; padding:2rem 0 3rem; border-top:1px solid var(--line); color:var(--muted); font-size:.85rem; }
+      footer div { display:flex; gap:1rem; }
+      @media (max-width:800px) { .products,.principles,.audiences,.story { grid-template-columns:1fr; } .story { gap:2rem; } .hero { padding-top:4rem; } nav a:not(:last-child) { display:none; } footer { flex-direction:column; } }
+    </style>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NYJLT7WB5X"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-NYJLT7WB5X');gtag('event','about_viewed');</script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="../">Thai<span>Type</span></a>
+      <nav aria-label="Product navigation" data-language-host>
+        <a href="../">Free Practice</a>
+        <a href="https://vip.thaitypes.com" data-event="vip_link_clicked">VIP</a>
+        <a href="https://b.thaitypes.com" data-event="business_link_clicked">For Business</a>
+      </nav>
+    </header>
+    <main>
+      <section class="hero">
+        <div class="eyebrow">About ThaiType</div>
+        <h1>Helping everyone type Thai with confidence.</h1>
+        <p>ThaiType is a focused learning platform for people who want to type Thai accurately, naturally, and with confidence. We start with the Kedmanee keyboard and turn every keystroke into useful practice.</p>
+        <p class="promise">Our promise: ThaiType's core typing practice will remain free for everyone.</p>
+      </section>
+
+      <section class="section story">
+        <div>
+          <div class="eyebrow">Why we exist</div>
+          <h2>Thai typing deserves a better way to learn.</h2>
+        </div>
+        <div class="story-copy">
+          <p>Learning Thai does not stop at reading and speaking. For students, teachers, professionals, and anyone living or working in Thailand, typing is a practical skill used every day.</p>
+          <p>Yet most learners are left to memorize a keyboard layout on their own. ThaiType makes that process clear and measurable with focused exercises, a visual Kedmanee keyboard, instant feedback, and meaningful progress data.</p>
+          <p>We are building ThaiType as a product family: a free practice tool for everyone, an advanced personal experience for committed learners, and a separate platform for teachers and organizations.</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <div class="eyebrow">How we build</div>
+          <h2>Simple practice. Useful results.</h2>
+          <p>Every part of ThaiType follows three principles.</p>
+        </div>
+        <div class="principles">
+          <article class="principle"><strong>Keep practice accessible</strong><p>The essential tools for learning the Thai keyboard stay free and easy to start.</p></article>
+          <article class="principle"><strong>Measure real progress</strong><p>Speed matters, but accuracy, weak keys, consistency, and improvement matter too.</p></article>
+          <article class="principle"><strong>Respect each audience</strong><p>Free learners, individual members, and organizations get separate, focused experiences.</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="products-title">
+        <div class="section-heading">
+          <div class="eyebrow">One mission, three products</div>
+          <h2 id="products-title">Choose the ThaiType experience that fits you.</h2>
+          <p>Each product has its own purpose and website, so free practice remains focused while personal and organizational tools can grow independently.</p>
+        </div>
+        <div class="products" aria-label="ThaiType products">
+        <article class="card">
+          <div class="status live">Available now</div>
+          <div class="tag">Free forever</div>
+          <h2>ThaiType Free</h2>
+          <p>The open practice space for anyone learning or improving Thai typing.</p>
+          <ul><li>Letters, words, and custom practice</li><li>Custom practice up to 50 characters</li><li>Core Thai word collections</li><li>Visual Kedmanee keyboard guidance</li><li>WPM, accuracy, and missed-key feedback</li><li>Global ranking and shareable results</li></ul>
+          <a class="cta primary" href="../">Start Free Practice</a>
+        </article>
+        <article class="card vip">
+          <div class="status">In development</div>
+          <div class="tag">For individuals</div>
+          <h2>ThaiType VIP</h2>
+          <p>A separate, ad-free experience for learners who want deeper insight and proof of progress.</p>
+          <ul><li>Unlimited-length custom practice</li><li>Random practice from 500+ common Thai words</li><li>Multiple Thai voices and colorful keyboard styles</li><li>A personal skill model for every Thai character</li><li>Clear diagnosis of why typing mistakes happen</li><li>Automatic recommendations for what to practise next</li><li>Adaptive Thai-word drills built from your weak characters</li><li>One-click practice to fix mistakes from each session</li><li>Complete practice history</li><li>Weak-key analysis and progress trends</li><li>Saved custom practice and daily goals</li><li>High-resolution verified certificates</li><li>Ad-free experience</li></ul>
+          <a class="cta" href="https://vip.thaitypes.com" data-event="vip_link_clicked">Preview ThaiType VIP</a>
+        </article>
+        <article class="card">
+          <div class="status">Early access planned</div>
+          <div class="tag">For organizations</div>
+          <h2>ThaiType for Business</h2>
+          <p>A dedicated workspace for teachers, schools, language programs, and workplace training.</p>
+          <ul><li>Classes, groups, and learner management</li><li>Typing assignments and targets</li><li>Progress and error reports</li><li>Result export and organization controls</li></ul>
+          <a class="cta" href="https://b.thaitypes.com" data-event="business_link_clicked">Explore Business Solutions</a>
+        </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <div class="eyebrow">Who ThaiType is for</div>
+          <h2>Built for learning that leads somewhere.</h2>
+        </div>
+        <div class="audiences">
+          <article class="audience"><h3>Thai language learners</h3><p>Build keyboard confidence alongside reading, writing, and everyday communication.</p></article>
+          <article class="audience"><h3>Students and professionals</h3><p>Improve practical typing speed and accuracy for study, work, and life in Thailand.</p></article>
+          <article class="audience"><h3>Teachers and schools</h3><p>Give learners structured practice and understand where they need more support.</p></article>
+          <article class="audience"><h3>Organizations</h3><p>Develop and document Thai typing ability across teams with consistent measurement.</p></article>
+        </div>
+      </section>
+
+      <section class="closing">
+        <div class="eyebrow">Start where you are</div>
+        <h2>Better Thai typing begins with one practice session.</h2>
+        <p>No account is required to begin. Choose a mode, set your keyboard to Thai Kedmanee, and start building muscle memory.</p>
+        <a class="cta primary" href="../">Start Practising Free</a>
+      </section>
+    </main>
+    <footer><span>© 2026 ThaiType</span><div><a href="../privacy.html">Privacy</a><a href="../guide/index.html">Keyboard Guide</a></div></footer>
+    <script>document.addEventListener('click',function(event){var link=event.target.closest('[data-event]');if(link)gtag('event',link.dataset.event,{location:'about'})});</script>
+    <script type="module" src="./i18n.js"></script>
+  </body>
+</html>

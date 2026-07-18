@@ -1,0 +1,3 @@
+[functions.username-login]
+# This endpoint establishes a session, so callers do not have a JWT yet.
+verify_jwt = false
