@@ -31,11 +31,10 @@ export function detectGateLocale() {
     'en'
   const lang = String(raw).toLowerCase().replace('_', '-')
 
+  if (lang.startsWith('zh-tw') || lang.startsWith('zh-hk') || lang.startsWith('zh-mo') || lang.includes('hant')) return 'zh-TW'
   if (lang.startsWith('zh')) return 'zh'
   if (lang.startsWith('th')) return 'th'
-  if (lang.startsWith('ja')) return 'ja'
-  if (lang.startsWith('ko')) return 'ko'
-  if (lang.startsWith('vi')) return 'vi'
+  if (lang.startsWith('ru')) return 'ru'
   return 'en'
 }
 
@@ -56,6 +55,14 @@ const GATE_COPY = {
     confirm: '我已连接实体键盘',
     continueWithout: '没有键盘，仍要进入',
   },
+  'zh-TW': {
+    lang: 'zh-TW',
+    title: '建議使用實體鍵盤',
+    body: '為了獲得最佳使用體驗，請使用電腦，或連接實體鍵盤的行動裝置。泰語 Kedmanee 盲打練習需要真實按鍵，才能建立肌肉記憶。',
+    soft: '若已連接實體鍵盤，請點擊下方確認。沒有實體鍵盤仍可瀏覽網站，但觸控螢幕無法進行打字練習。',
+    confirm: '我已連接實體鍵盤',
+    continueWithout: '沒有鍵盤，仍要進入',
+  },
   th: {
     lang: 'th',
     title: 'แนะนำให้ใช้คีย์บอร์ดจริง',
@@ -63,6 +70,14 @@ const GATE_COPY = {
     soft: 'หากคุณเชื่อมต่อคีย์บอร์ดแล้ว ให้กดยืนยันด้านล่างเพื่อเข้าใช้งาน คุณยังเข้าชมเว็บได้แม้ไม่มีคีย์บอร์ด แต่การฝึกพิมพ์จะใช้ไม่ได้บนหน้าจอสัมผัสอย่างเดียว',
     confirm: 'ฉันมีคีย์บอร์ดจริงแล้ว',
     continueWithout: 'เข้าต่อโดยไม่มีคีย์บอร์ด',
+  },
+  ru: {
+    lang: 'ru',
+    title: 'Рекомендуется физическая клавиатура',
+    body: 'Для удобной работы используйте компьютер или мобильное устройство с физической клавиатурой. Практика Kedmanee требует настоящих клавиш для развития мышечной памяти.',
+    soft: 'Если клавиатура уже подключена, подтвердите это ниже. Сайт можно просматривать и без неё, но практика печати на одном сенсорном экране работать не будет.',
+    confirm: 'Физическая клавиатура подключена',
+    continueWithout: 'Продолжить без клавиатуры',
   },
   ja: {
     lang: 'ja',

@@ -75,6 +75,7 @@
         -webkit-backdrop-filter: blur(12px);
         border-bottom: 1px solid var(--line);
       }
+      .page-language-select { margin-left:auto; color:var(--text-dim); background:var(--bg-elevated); border:1px solid var(--line); border-radius:8px; padding:.45rem .6rem; }
 
       .guide-nav-float a {
         display: inline-flex;
@@ -241,16 +242,16 @@
     </style>
   </head>
   <body>
-    <div class="guide-nav-float">
-      <a href="../">← Back to Typing Test</a>
+    <div class="guide-nav-float" data-language-host>
+      <a href="../" data-i18n="back">← Back to Typing Test</a>
     </div>
 
     <div class="guide-page-wrapper">
       <p class="brand">Thai<span>Type</span></p>
 
       <header class="guide-header">
-        <h1>The Ultimate Guide to Mastering the Thai Kedmanee Keyboard Layout</h1>
-        <p class="lede">
+        <h1 data-i18n="heading">The Ultimate Guide to Mastering the Thai Kedmanee Keyboard Layout</h1>
+        <p class="lede" data-i18n="lede">
           Learning how to type fast in Thai can feel intimidating. With 44 consonants, dozens of
           vowels, and tone marks that stack above and below characters, the standard Thai Kedmanee
           layout looks like a maze to beginners. This guide breaks down how to build pure
@@ -259,15 +260,15 @@
       </header>
 
       <article class="guide-article-body">
-        <h2>Why is the Thai Keyboard Layout So Unique?</h2>
-        <p>
+        <h2 data-i18n="uniqueHeading">Why is the Thai Keyboard Layout So Unique?</h2>
+        <p data-i18n-html="unique1">
           Unlike Western languages where the <code>Shift</code> key simply converts a letter to
           uppercase, the Thai <strong>Kedmanee layout</strong> uses the shift modifier to introduce
           entirely new, distinct consonants and symbols. For instance, pressing the physical
           <code>D</code> key types <strong class="thai">ก (Ko Kai)</strong>, but pressing
           <code>Shift + D</code> inputs <strong class="thai">โ (Sra O)</strong>.
         </p>
-        <p>
+        <p data-i18n-html="unique2">
           Furthermore, Thai is a multi-level language. Vowels and tone marks (like
           <code class="thai">่</code>, <code class="thai">้</code>, <code class="thai">๊</code>,
           <code class="thai">๋</code>) do not sit side-by-side with consonants; they stack
@@ -276,15 +277,15 @@
           lower accents.
         </p>
 
-        <h2>Step-by-Step Strategy to Build Thai Muscle Memory</h2>
-        <p>
+        <h2 data-i18n="strategyHeading">Step-by-Step Strategy to Build Thai Muscle Memory</h2>
+        <p data-i18n="strategyIntro">
           Trying to memorize all 44 Thai characters at once is a recipe for cognitive overload. To
           transition from hunting-and-pecking to professional touch typing, implement these three
           deliberate practice strategies:
         </p>
 
-        <h3>1. Leverage Zoned Row-by-Row Training</h3>
-        <p>
+        <h3 data-i18n="zoneHeading">1. Leverage Zoned Row-by-Row Training</h3>
+        <p data-i18n-html="zoneText">
           Restrict your practice canvas. Start exclusively with the <strong>Home Row</strong>
           (corresponding to physical keys <code>A, S, D, F, J, K, L, ;</code>). In Thai, this row
           houses foundational characters such as
@@ -293,8 +294,8 @@
           up to the Top Row or down to the Bottom Row.
         </p>
 
-        <h3>2. Master the Font Variance (Looped vs. Loopless)</h3>
-        <p>
+        <h3 data-i18n="fontHeading">2. Master the Font Variance (Looped vs. Loopless)</h3>
+        <p data-i18n-html="font1">
           One of the biggest visual traps for Thai learners is typography. Standard physical
           keycaps print traditional Thai fonts with loops (small circles at the beginning of brush
           strokes, such as the <em>Sarabun</em> font). However, modern Thai mobile apps and
@@ -302,15 +303,15 @@
           <em>Kanit</em> or <em>Sukhumvit</em>) where these circles are removed, making the
           characters look sleek and almost westernized.
         </p>
-        <p>
+        <p data-i18n-html="font2">
           Beginners should explicitly practice typing with <strong>Looped fonts</strong> first to
           create a perfect visual match with their physical keyboard. As your speed grows, toggle
           to <strong>Loopless fonts</strong> to train your brain to recognize modern Thai text
           patterns in the wild.
         </p>
 
-        <h3>3. Use Intelligent Visual Feedback Over Hitting Backspace</h3>
-        <p>
+        <h3 data-i18n="feedbackHeading">3. Use Intelligent Visual Feedback Over Hitting Backspace</h3>
+        <p data-i18n="feedbackText">
           When you practice, keep your eyes strictly on the screen, not your hands. Utilize
           reactive typing interfaces that flash color indicators (Green for right, Red for wrong)
           and highlight upcoming keys dynamically. If you misstrike a tone mark, analyze the
@@ -318,13 +319,13 @@
           physical desk.
         </p>
 
-        <h2>Put Your Speed to the Test Globally</h2>
-        <p>
+        <h2 data-i18n="testHeading">Put Your Speed to the Test Globally</h2>
+        <p data-i18n="test1">
           Real muscle memory is forged under pressure. Once you feel comfortable navigating the
           home row or the full Kedmanee layout, it is time to gauge your performance against
           learners worldwide.
         </p>
-        <p>
+        <p data-i18n-html="test2">
           Head back to the main lobby on
           <a href="https://thaitypes.com">thaitypes.com</a>, customize your word multiplication
           repeat settings, toggle your preferred font style, and claim your official global Words
@@ -333,8 +334,9 @@
       </article>
 
       <footer class="guide-cta-footer">
-        <a class="guide-cta-btn" href="../">Start Free Thai Typing Test Now</a>
+        <a class="guide-cta-btn" href="../" data-i18n="cta">Start Free Thai Typing Test Now</a>
       </footer>
     </div>
+    <script type="module" src="./i18n.js"></script>
   </body>
 </html>

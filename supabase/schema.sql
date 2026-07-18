@@ -4,11 +4,17 @@
 -- Profiles (extends auth.users)
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
+  username text,
   display_name text not null default 'Learner',
   avatar_url text,
+  country_code text check (country_code is null or country_code ~ '^[A-Z]{2}$'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.profiles add column if not exists username text;
+alter table public.profiles add column if not exists country_code text;
+create unique index if not exists profiles_username_unique_idx on public.profiles (lower(username)) where username is not null;
 
 -- Every completed typing session
 create table if not exists public.user_scores (
@@ -33,11 +39,13 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, display_name, avatar_url)
+  insert into public.profiles (id, username, display_name, avatar_url, country_code)
   values (
     new.id,
+    nullif(lower(new.raw_user_meta_data->>'username'), ''),
     coalesce(
       new.raw_user_meta_data->>'full_name',
+      new.raw_user_meta_data->>'display_name',
       new.raw_user_meta_data->>'name',
       split_part(new.email, '@', 1),
       'Learner'
@@ -46,11 +54,14 @@ begin
       new.raw_user_meta_data->>'avatar_url',
       new.raw_user_meta_data->>'picture',
       null
-    )
+    ),
+    nullif(upper(new.raw_user_meta_data->>'country_code'), '')
   )
   on conflict (id) do update set
+    username = coalesce(excluded.username, profiles.username),
     display_name = excluded.display_name,
     avatar_url = coalesce(excluded.avatar_url, profiles.avatar_url),
+    country_code = coalesce(excluded.country_code, profiles.country_code),
     updated_at = now();
   return new;
 end;
@@ -74,6 +85,27 @@ drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
   on public.profiles for update
   using (auth.uid() = id);
+
+-- Public avatar bucket. Users can only write files inside their own user-id folder.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('avatars', 'avatars', true, 2097152, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "Avatar uploads by owner" on storage.objects;
+create policy "Avatar uploads by owner" on storage.objects for insert to authenticated
+  with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists "Avatar updates by owner" on storage.objects;
+create policy "Avatar updates by owner" on storage.objects for update to authenticated
+  using (bucket_id = 'avatars' and owner_id = (select auth.uid())::text)
+  with check (bucket_id = 'avatars' and owner_id = (select auth.uid())::text);
+
+drop policy if exists "Avatar reads" on storage.objects;
+create policy "Avatar reads" on storage.objects for select to public
+  using (bucket_id = 'avatars');
 
 drop policy if exists "Scores are viewable by everyone" on public.user_scores;
 create policy "Scores are viewable by everyone"
@@ -115,6 +147,7 @@ returns table (
   user_id uuid,
   display_name text,
   avatar_url text,
+  country_code text,
   best_wpm integer,
   best_accuracy integer,
   achieved_at timestamptz
@@ -129,6 +162,7 @@ as $$
     pb.user_id,
     p.display_name,
     p.avatar_url,
+    p.country_code,
     pb.best_wpm,
     pb.best_accuracy,
     pb.achieved_at
@@ -171,6 +205,7 @@ $$;
 
 grant usage on schema public to anon, authenticated;
 grant select on public.profiles to anon, authenticated;
+grant update on public.profiles to authenticated;
 grant select, insert on public.user_scores to authenticated;
 grant select on public.user_scores to anon;
 grant execute on function public.get_leaderboard(integer) to anon, authenticated;
